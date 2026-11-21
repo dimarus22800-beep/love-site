@@ -42,11 +42,9 @@
   h1 { font-family: 'Marck Script', cursive; font-weight: 400; font-size: clamp(2.6rem, 11vw, 6.5rem); line-height: 1.15; background: linear-gradient(180deg, #ffffff 0%, #ffd0e0 45%, #ff5c8a 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 22px rgba(255,70,130,0.55)) drop-shadow(0 0 60px rgba(255,70,130,0.35)); animation: pulse 3.5s ease-in-out infinite; margin-bottom: clamp(20px, 4vw, 40px); padding: 0 10px; }
   @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
 
-  /* Видео */
   .video-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: #12060d; border: 1px solid rgba(255,140,175,0.35); box-shadow: 0 0 0 6px rgba(255,110,160,0.08), 0 18px 60px rgba(0,0,0,0.7), 0 0 70px rgba(255,60,120,0.3); margin-bottom: clamp(36px, 6vw, 60px); }
   .video-frame video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  /* Подсказка к видео */
   .video-hint {
     position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
     z-index: 10; display: flex; flex-direction: column; align-items: center;
@@ -79,7 +77,6 @@
   .photo:hover img { transform: scale(1.06); }
   .photo::after { content: "❤"; position: absolute; bottom: 10px; right: 12px; font-size: 1.1rem; color: #ff5c8a; text-shadow: 0 0 10px rgba(255,90,140,0.9); opacity: 0.85; pointer-events: none; }
 
-  /* Кнопка музыки */
   .music-btn {
     position: fixed; top: 16px; right: 16px; z-index: 20;
     display: flex; align-items: center; gap: 8px; padding: 10px 18px;
@@ -95,7 +92,6 @@
   .music-btn .music-icon { font-size: 1.1rem; line-height: 1; }
   @keyframes musicPulse { 0%, 100% { box-shadow: 0 0 20px rgba(255, 60, 120, 0.3); } 50% { box-shadow: 0 0 35px rgba(255, 60, 120, 0.6); } }
 
-  /* Подсказка для музыки (исправленная) */
   .music-hint {
     position: fixed; top: 70px; right: 16px; z-index: 100;
     display: flex; align-items: center; gap: 10px;
@@ -108,47 +104,28 @@
   }
   .music-hint.hidden { opacity: 0; visibility: hidden; }
   .music-hint .arrow { font-size: 1.3rem; display: inline-block; animation: blinkArrow 0.8s infinite alternate; }
-  
   @keyframes blinkArrow { 0% { opacity: 1; transform: translate(0, 0); } 100% { opacity: 0.2; transform: translate(5px, 5px); } }
   @keyframes floatHint { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
-  /* БЛОК С ВОПРОСОМ И КРАСИВОЙ РАМКОЙ */
   .proposal-section { 
-    background: rgba(20, 5, 15, 0.7); 
-    backdrop-filter: blur(8px); 
-    -webkit-backdrop-filter: blur(8px); 
-    border: 1px solid rgba(255, 140, 175, 0.4); 
-    border-radius: 20px; 
-    padding: 40px 20px; 
-    max-width: 600px; 
-    margin: 0 auto; 
-    box-shadow: 0 15px 50px rgba(0,0,0,0.6), 0 0 40px rgba(255,60,120,0.2); 
+    background: rgba(20, 5, 15, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); 
+    border: 1px solid rgba(255, 140, 175, 0.4); border-radius: 20px; padding: 40px 20px; 
+    max-width: 600px; margin: 0 auto; box-shadow: 0 15px 50px rgba(0,0,0,0.6), 0 0 40px rgba(255,60,120,0.2); 
   }
   
-  /* КРАСИВАЯ РАМКА ДЛЯ ЗАГОЛОВКА */
   .proposal-section h2 { 
-    font-family: 'Marck Script', cursive; 
-    font-size: clamp(2.2rem, 8vw, 3rem); 
-    color: #ffffff; 
-    background: rgba(255, 46, 99, 0.15);
-    border: 2px solid #ff2e63;
-    padding: 10px 20px;
-    border-radius: 15px;
-    display: inline-block;
-    margin-bottom: 30px; 
-    text-shadow: 0 0 10px #ff2e63, 0 0 20px #ff2e63;
-    box-shadow: 0 0 20px rgba(255, 46, 99, 0.4);
-    width: 100%;
+    font-family: 'Marck Script', cursive; font-size: clamp(2.2rem, 8vw, 3rem); color: #ffffff; 
+    background: rgba(255, 46, 99, 0.15); border: 2px solid #ff2e63; padding: 10px 20px;
+    border-radius: 15px; display: inline-block; margin-bottom: 30px; 
+    text-shadow: 0 0 10px #ff2e63, 0 0 20px #ff2e63; box-shadow: 0 0 20px rgba(255, 46, 99, 0.4); width: 100%;
   }
 
   .buttons-container { display: flex; justify-content: center; gap: 20px; position: relative; min-height: 60px; }
-  
   .btn-choice { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 1.1rem; padding: 15px 35px; border-radius: 50px; cursor: pointer; border: none; outline: none; text-transform: uppercase; letter-spacing: 1px; }
-  .btn-yes { background: #ff2e63; background: linear-gradient(135deg, #ff2e63, #ff5c8a); color: #fff; box-shadow: 0 8px 20px rgba(255, 46, 99, 0.4); animation: pulse 2s infinite; transition: all 0.2s ease; }
+  .btn-yes { background: linear-gradient(135deg, #ff2e63, #ff5c8a); color: #fff; box-shadow: 0 8px 20px rgba(255, 46, 99, 0.4); animation: pulse 2s infinite; transition: all 0.2s ease; }
   .btn-yes:hover { transform: scale(1.05); box-shadow: 0 10px 25px rgba(255, 46, 99, 0.6); }
   .btn-no { background: #2a0c1f; color: #ff8fa3; border: 2px solid #ff5c8a; position: relative; z-index: 10; transition: left 0.2s ease-out, top 0.2s ease-out; }
 
-  /* Модалка */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
   .modal-content { background: linear-gradient(180deg, #2a0c1f, #150510); border: 1px solid rgba(255, 140, 175, 0.5); padding: 40px 30px; border-radius: 20px; text-align: center; max-width: 450px; width: 100%; box-shadow: 0 0 60px rgba(255,60,120,0.3); animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes modalIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -172,6 +149,58 @@
   }
   .restaurant-btn:hover { background: rgba(255, 46, 99, 0.15); border-color: #ff5c8a; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 46, 99, 0.3); }
 
+  /* Стили для Билета (Сертификата) */
+  .certificate {
+    background: repeating-linear-gradient(45deg, rgba(255,46,99,0.05), rgba(255,46,99,0.05) 10px, transparent 10px, transparent 20px), rgba(0,0,0,0.4);
+    border: 2px dashed #ff5c8a;
+    border-radius: 15px;
+    padding: 25px 20px;
+    margin-top: 10px;
+    box-shadow: 0 10px 30px rgba(255,46,99,0.2), inset 0 0 20px rgba(255,46,99,0.1);
+    text-align: left;
+  }
+  .certificate h3 { text-align: center; font-size: 1.8rem; margin-bottom: 20px; text-shadow: 0 0 15px #ff2e63; }
+  .cert-row { margin-bottom: 12px; font-size: 1rem; color: #f1e4ea; border-bottom: 1px solid rgba(255,140,175,0.2); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .cert-row span { opacity: 0.8; }
+  .cert-row b { color: #fff; text-align: right; max-width: 60%; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
+  
+  .timer-box {
+    margin-top: 25px;
+    text-align: center;
+    background: rgba(255, 46, 99, 0.15);
+    border: 1px solid #ff5c8a;
+    border-radius: 10px;
+    padding: 15px;
+  }
+  .timer-box p { font-size: 0.9rem; color: #ffdde9; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+  .countdown { font-size: 1.4rem; font-weight: 600; color: #fff; text-shadow: 0 0 10px #ff2e63; font-variant-numeric: tabular-nums; }
+  
+  .cert-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+  }
+  .btn-cert {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ff5c8a;
+    background: rgba(255, 46, 99, 0.1);
+    color: #ffdde9;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 0.95rem;
+  }
+  .btn-cert:hover {
+    background: rgba(255, 46, 99, 0.3);
+    box-shadow: 0 0 15px rgba(255, 46, 99, 0.4);
+  }
+
+  .cert-footer { text-align: center; margin-top: 20px; font-size: 0.95rem; color: #ffdde9; font-style: italic; }
+
   @media (max-width: 640px) {
     body { padding: 24px 14px 90px; }
     h1 { margin-bottom: 16px; }
@@ -188,17 +217,13 @@
     .music-btn { top: auto; bottom: 16px; right: 16px; padding: 0; width: 50px; height: 50px; border-radius: 50%; justify-content: center; animation: none; }
     .music-btn .music-label { display: none; }
     .music-btn .music-icon { font-size: 1.35rem; }
-
-    /* На мобилке подсказку поднимаем наверх */
-    .music-hint { 
-      top: 16px; 
-      bottom: auto; 
-      right: 16px; 
-      font-size: 0.75rem; 
-      padding: 6px 12px; 
-      max-width: 60%;
-      line-height: 1.2;
-    }
+    .music-hint { top: 16px; bottom: auto; right: 16px; font-size: 0.75rem; padding: 6px 12px; max-width: 60%; line-height: 1.2; }
+    
+    .certificate { padding: 15px 10px; }
+    .cert-row { font-size: 0.9rem; flex-direction: column; align-items: flex-start; gap: 4px; }
+    .cert-row b { text-align: left; max-width: 100%; }
+    .countdown { font-size: 1.1rem; }
+    .cert-buttons { flex-direction: column; }
   }
 </style>
 </head>
@@ -234,7 +259,6 @@
       <video id="myVideo" controls playsinline preload="metadata">
         <source src="video.mp4" type="video/mp4">
       </video>
-      <!-- ПОДСКАЗКА К ВИДЕО -->
       <div id="videoHint" class="video-hint">
         <span>Нажми на видео и посмотри</span>
         <span class="arrow-down">👇</span>
@@ -270,7 +294,6 @@
       <figure class="photo"><img src="photo6.jpg" alt="Фото 6"></figure>
     </section>
 
-    <!-- БЛОК С ВОПРОСОМ -->
     <section class="proposal-section" id="proposalSection">
       <h2>Пойдем на свидание?</h2>
       <div class="buttons-container">
@@ -287,6 +310,19 @@
   </div>
 
 <script>
+  /* ============================================ */
+  /* ============ ПЕРЕМЕННЫЕ ДЛЯ СЕРТИФИКАТА ===== */
+  /* ============================================ */
+  let choiceDate = '';
+  let choiceDateObj = null; // Для таймера и календаря
+  let choiceRestaurant = '';
+  let choiceDish1 = '';
+  let choiceDish2 = '';
+  let timerInterval = null;
+
+  /* ============================================ */
+  /* ============ МУЗЫКА И ПОДСКАЗКИ ============ */
+  /* ============================================ */
   const audio = document.getElementById('bgMusic');
   const musicBtn = document.getElementById('musicBtn');
   const musicIcon = musicBtn.querySelector('.music-icon');
@@ -395,8 +431,11 @@
         alert('Выбери дату и время, пожалуйста!');
         return;
       }
-      const formattedDate = dateVal.replace('T', ' '); 
-      sendToTelegram(`🎉 УРА! ОНА ВЫБРАЛА ДАТУ СВИДАНИЯ:\n📅 ${formattedDate}`);
+      
+      choiceDate = dateVal.replace('T', ' '); 
+      choiceDateObj = new Date(dateVal); // Сохраняем объект даты
+      
+      sendToTelegram(`🎉 УРА! ОНА ВЫБРАЛА ДАТУ СВИДАНИЯ:\n📅 ${choiceDate}`);
       showRestaurantStep();
     });
   }
@@ -416,8 +455,8 @@
 
     modalContent.querySelectorAll('.restaurant-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const val = btn.getAttribute('data-val');
-        sendToTelegram(`🍽 Софья выбрала ресторан: ${val}`);
+        choiceRestaurant = btn.getAttribute('data-val');
+        sendToTelegram(`🍽 Софья выбрала ресторан: ${choiceRestaurant}`);
         showFirstCourseStep();
       });
     });
@@ -439,8 +478,8 @@
 
     modalContent.querySelectorAll('.first-course').forEach(btn => {
       btn.addEventListener('click', () => {
-        const val = btn.getAttribute('data-val');
-        sendToTelegram(`🥣 Первое блюдо: ${val}`);
+        choiceDish1 = btn.getAttribute('data-val');
+        sendToTelegram(`🥣 Первое блюдо: ${choiceDish1}`);
         showSecondCourseStep();
       });
     });
@@ -466,8 +505,8 @@
 
     modalContent.querySelectorAll('.second-course').forEach(btn => {
       btn.addEventListener('click', () => {
-        const val = btn.getAttribute('data-val');
-        sendToTelegram(`🍝 Второе блюдо: ${val}`);
+        choiceDish2 = btn.getAttribute('data-val');
+        sendToTelegram(`🍝 Второе блюдо: ${choiceDish2}`);
         showFinalStep();
       });
     });
@@ -498,24 +537,120 @@
       }
       
       if (isFirst) {
-        sendToTelegram(`🥣 Первое блюдо (свой вариант): ${input}`);
+        choiceDish1 = input;
+        sendToTelegram(`🥣 Первое блюдо (свой вариант): ${choiceDish1}`);
         showSecondCourseStep();
       } else {
-        sendToTelegram(`🍝 Второе блюдо (свой вариант): ${input}`);
+        choiceDish2 = input;
+        sendToTelegram(`🍝 Второе блюдо (свой вариант): ${choiceDish2}`);
         showFinalStep();
       }
     });
   }
 
   /* ============================================ */
-  /* ============ ФИНАЛ ========================= */
+  /* ============ ФИНАЛ: БИЛЕТ И ТАЙМЕР ========= */
   /* ============================================ */
   function showFinalStep() {
+    sendToTelegram(`🎊 Полный заказ собран!\n🍽 Ресторан: ${choiceRestaurant}\n🥣 1-е: ${choiceDish1}\n🍝 2-е: ${choiceDish2}`);
+    
     modalContent.innerHTML = `
-      <h3 style="font-size: 1.8rem; line-height: 1.3; margin-bottom: 15px;">Восхитительный выбор<br>для восхитительной девушки!</h3>
-      <p style="color: #ffdde9; font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;">Жду тебя в ЛС, обсудим все детали 😉</p>
-      <div style="font-size: 2rem;">❤️</div>
+      <div class="certificate">
+        <h3>Билет на свидание</h3>
+        <div class="cert-row"><span>Кавалер:</span> <b>Влад</b></div>
+        <div class="cert-row"><span>Дама:</span> <b>Софья</b></div>
+        <div class="cert-row"><span>Ресторан:</span> <b>${choiceRestaurant}</b></div>
+        <div class="cert-row"><span>Меню:</span> <b>${choiceDish1}, ${choiceDish2}</b></div>
+        <div class="cert-row"><span>Дата:</span> <b>${choiceDate}</b></div>
+        
+        <div class="timer-box">
+          <p>До встречи осталось:</p>
+          <div id="countdown" class="countdown">Расчет времени...</div>
+        </div>
+
+        <div class="cert-buttons">
+          <button class="btn-cert" id="btnCalendar">📅 В календарь</button>
+        </div>
+
+        <p class="cert-footer">Жду тебя в ЛС, обсудим все детали 😉</p>
+      </div>
     `;
+
+    startCountdown();
+
+    // --- Кнопка "В календарь" ---
+    document.getElementById('btnCalendar').addEventListener('click', () => {
+      if (!choiceDateObj) return;
+      
+      // Создаем дату окончания (через 2 часа после начала)
+      const endDateObj = new Date(choiceDateObj.getTime() + 2 * 60 * 60 * 1000);
+      
+      // Форматируем в строку для календаря (UTC)
+      const formatICSDate = (date) => {
+        return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      };
+
+      const dtStart = formatICSDate(choiceDateObj);
+      const dtEnd = formatICSDate(endDateObj);
+      
+      const summary = "Свидание с Софьей ❤️";
+      const description = `Ресторан: ${choiceRestaurant}. Меню: ${choiceDish1}, ${choiceDish2}.`;
+
+      // Собираем контент файла
+      const icsContent = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Love Site//Date//RU',
+        'BEGIN:VEVENT',
+        `UID:${Date.now()}@lovesite.com`,
+        `DTSTAMP:${formatICSDate(new Date())}`,
+        `DTSTART:${dtStart}`,
+        `DTEND:${dtEnd}`,
+        `SUMMARY:${summary}`,
+        `DESCRIPTION:${description}`,
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+
+      // Скачиваем файл
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'date_with_sonya.ics';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  /* ============================================ */
+  /* ============ ЛОГИКА ТАЙМЕРА ================ */
+  /* ============================================ */
+  function startCountdown() {
+    const countdownEl = document.getElementById('countdown');
+    if (!countdownEl || !choiceDateObj) return;
+
+    if (timerInterval) clearInterval(timerInterval);
+
+    timerInterval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = choiceDateObj.getTime() - now;
+
+      if (distance < 0) {
+        clearInterval(timerInterval);
+        countdownEl.innerHTML = "Время пришло! 💖";
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      countdownEl.innerHTML = `${days} дн. ${hours} ч. ${minutes} мин. ${seconds} сек.`;
+    }, 1000);
   }
 
   /* ============================================ */
