@@ -85,30 +85,29 @@
   .btn-yes:hover { transform: scale(1.05); box-shadow: 0 10px 25px rgba(255, 46, 99, 0.6); }
   .btn-no { background: #2a0c1f; color: #ff8fa3; border: 1px solid #ff5c8a; position: relative; z-index: 10; transition: left 0.2s ease-out, top 0.2s ease-out; }
 
-  /* Модалка */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
   .modal-content { background: linear-gradient(180deg, #2a0c1f, #150510); border: 1px solid rgba(255, 140, 175, 0.5); padding: 40px 30px; border-radius: 20px; text-align: center; max-width: 450px; width: 100%; box-shadow: 0 0 60px rgba(255,60,120,0.3); animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes modalIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .modal-content h3 { font-family: 'Marck Script', cursive; font-size: 2.2rem; color: #ffdde9; margin-bottom: 20px; }
-  .modal-content input[type="datetime-local"] { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid rgba(255, 140, 175, 0.5); background: rgba(0,0,0,0.5); color: #fff; font-family: 'Montserrat', sans-serif; font-size: 1rem; margin-bottom: 20px; outline: none; }
+  .modal-content h3 { font-family: 'Marck Script', cursive; font-size: 2.2rem; color: #ffdde9; margin-bottom: 20px; line-height: 1.2; }
+  
+  /* Стили для инпута (дата и свой ответ) */
+  .modal-content input[type="datetime-local"], 
+  .modal-content input[type="text"] { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid rgba(255, 140, 175, 0.5); background: rgba(0,0,0,0.5); color: #fff; font-family: 'Montserrat', sans-serif; font-size: 1rem; margin-bottom: 20px; outline: none; }
   .modal-content input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+  
   .btn-submit { background: linear-gradient(135deg, #ff2e63, #ff5c8a); color: #fff; border: none; padding: 15px 30px; font-size: 1rem; border-radius: 50px; cursor: pointer; font-weight: 500; width: 100%; transition: 0.2s; }
   .btn-submit:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(255,60,120,0.5); }
 
-  /* Стили для выбора ресторана */
-  .restaurant-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+  .restaurant-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
   .restaurant-btn {
-    font-family: 'Montserrat', sans-serif; font-size: 1.1rem; font-weight: 500;
+    font-family: 'Montserrat', sans-serif; font-size: 1.05rem; font-weight: 500;
     padding: 16px 20px; background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 140, 175, 0.4); border-radius: 12px;
     color: #ffdde9; cursor: pointer; transition: all 0.3s ease;
     display: flex; align-items: center; justify-content: center; gap: 10px;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.5px; text-align: center;
   }
-  .restaurant-btn:hover {
-    background: rgba(255, 46, 99, 0.15); border-color: #ff5c8a;
-    transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 46, 99, 0.3);
-  }
+  .restaurant-btn:hover { background: rgba(255, 46, 99, 0.15); border-color: #ff5c8a; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 46, 99, 0.3); }
 
   @media (max-width: 640px) {
     body { padding: 24px 14px 90px; }
@@ -196,9 +195,7 @@
 
   <div class="modal-overlay" id="dateModal">
     <div class="modal-content" id="modalContent">
-      <h3>Ура! Когда встретимся?</h3>
-      <input type="datetime-local" id="dateInput">
-      <button class="btn-submit" id="btnSubmitDate">Отправить Владу</button>
+      <!-- Содержимое будет меняться через JS -->
     </div>
   </div>
 
@@ -284,48 +281,148 @@
     proposalSection.style.display = 'none';
     modal.style.display = 'flex';
     sendToTelegram("❤️ ОНА НАЖАЛА 'ДА'! Ждет окно выбора даты.");
+    showDateStep();
   });
 
   /* ============================================ */
-  /* ============ ВЫБОР ДАТЫ И РЕСТОРАНА ======== */
+  /* ============ ШАГ 1: ДАТА =================== */
   /* ============================================ */
-  document.getElementById('btnSubmitDate').addEventListener('click', () => {
-    const dateVal = document.getElementById('dateInput').value;
-    if (!dateVal) {
-      alert('Выбери дату и время, пожалуйста!');
-      return;
-    }
+  function showDateStep() {
+    modalContent.innerHTML = `
+      <h3>Ура! Когда встретимся?</h3>
+      <input type="datetime-local" id="dateInput">
+      <button class="btn-submit" id="btnSubmitDate">Отправить Владу</button>
+    `;
     
-    const formattedDate = dateVal.replace('T', ' '); 
-    sendToTelegram(`🎉 УРА! ОНА ВЫБРАЛА ДАТУ СВИДАНИЯ:\n📅 ${formattedDate}`);
-    
-    // Меняем содержимое модалки на выбор ресторана
+    document.getElementById('btnSubmitDate').addEventListener('click', () => {
+      const dateVal = document.getElementById('dateInput').value;
+      if (!dateVal) {
+        alert('Выбери дату и время, пожалуйста!');
+        return;
+      }
+      const formattedDate = dateVal.replace('T', ' '); 
+      sendToTelegram(`🎉 УРА! ОНА ВЫБРАЛА ДАТУ СВИДАНИЯ:\n📅 ${formattedDate}`);
+      showRestaurantStep();
+    });
+  }
+
+  /* ============================================ */
+  /* ============ ШАГ 2: РЕСТОРАН =============== */
+  /* ============================================ */
+  function showRestaurantStep() {
     modalContent.innerHTML = `
       <h3>Отличный выбор!<br>А куда пойдем?</h3>
       <div class="restaurant-list">
-        <button class="restaurant-btn" data-rest="Кубрик">🍔 Кубрик</button>
-        <button class="restaurant-btn" data-rest="Касса">🍷 Касса</button>
-        <button class="restaurant-btn" data-rest="Краснодар Фуд Маркет">🥙 Краснодар Фуд Маркет</button>
+        <button class="restaurant-btn" data-val="Кубрик">🍔 Кубрик</button>
+        <button class="restaurant-btn" data-val="Касса">🍷 Касса</button>
+        <button class="restaurant-btn" data-val="Краснодар Фуд Маркет">🥙 Краснодар Фуд Маркет</button>
       </div>
     `;
-  });
 
-  // Ловим клик по любой кнопке ресторана
-  modalContent.addEventListener('click', (e) => {
-    const target = e.target.closest('.restaurant-btn');
-    if (!target) return;
+    // Вешаем обработчик на кнопки ресторана
+    modalContent.querySelectorAll('.restaurant-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.getAttribute('data-val');
+        sendToTelegram(`🍽 Софья выбрала ресторан: ${val}`);
+        showFirstCourseStep();
+      });
+    });
+  }
 
-    const restaurantName = target.getAttribute('data-rest');
+  /* ============================================ */
+  /* ============ ШАГ 3: ПЕРВОЕ БЛЮДО =========== */
+  /* ============================================ */
+  function showFirstCourseStep() {
+    modalContent.innerHTML = `
+      <h3>Что будешь кушать?<br><span style="font-size: 1.2rem; color: #ff8fa3;">(На первое)</span></h3>
+      <div class="restaurant-list">
+        <button class="restaurant-btn first-course" data-val="Борщ">🥣 Борщ</button>
+        <button class="restaurant-btn first-course" data-val="Том Ям">🍲 Том Ям</button>
+        <button class="restaurant-btn first-course" data-val="Суп с морепродуктами">🦞 Суп с морепродуктами</button>
+        <button class="restaurant-btn custom-btn" data-target="first">✍️ Свой ответ</button>
+      </div>
+    `;
+
+    modalContent.querySelectorAll('.first-course').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.getAttribute('data-val');
+        sendToTelegram(`🥣 Первое блюдо: ${val}`);
+        showSecondCourseStep();
+      });
+    });
+
+    modalContent.querySelector('.custom-btn').addEventListener('click', () => {
+      showCustomInputStep('first');
+    });
+  }
+
+  /* ============================================ */
+  /* ============ ШАГ 4: ВТОРОЕ БЛЮДО =========== */
+  /* ============================================ */
+  function showSecondCourseStep() {
+    modalContent.innerHTML = `
+      <h3>Ммм, вкусно!<br><span style="font-size: 1.2rem; color: #ff8fa3;">А что на второе?</span></h3>
+      <div class="restaurant-list">
+        <button class="restaurant-btn second-course" data-val="Салат Цезарь">🥗 Салат Цезарь</button>
+        <button class="restaurant-btn second-course" data-val="Карбонара">🍝 Карбонара</button>
+        <button class="restaurant-btn second-course" data-val="Спагетти с морепродуктами">🦐 Спагетти с морепродуктами</button>
+        <button class="restaurant-btn custom-btn" data-target="second">✍️ Свой ответ</button>
+      </div>
+    `;
+
+    modalContent.querySelectorAll('.second-course').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.getAttribute('data-val');
+        sendToTelegram(`🍝 Второе блюдо: ${val}`);
+        showFinalStep();
+      });
+    });
+
+    modalContent.querySelector('.custom-btn').addEventListener('click', () => {
+      showCustomInputStep('second');
+    });
+  }
+
+  /* ============================================ */
+  /* ============ СВОЙ ОТВЕТ (ИНПУТ) ============ */
+  /* ============================================ */
+  function showCustomInputStep(target) {
+    const isFirst = target === 'first';
+    const title = isFirst ? 'Что на первое?' : 'А что на второе?';
     
-    // Отправляем в ТГ
-    sendToTelegram(`🍽 Софья выбрала ресторан: ${restaurantName}`);
-    
-    // Показываем финальный экран
+    modalContent.innerHTML = `
+      <h3>${title}</h3>
+      <input type="text" id="customInput" placeholder="Напиши свой вариант..." autocomplete="off">
+      <button class="btn-submit" id="btnSubmitCustom">Отправить</button>
+    `;
+
+    document.getElementById('btnSubmitCustom').addEventListener('click', () => {
+      const input = document.getElementById('customInput').value.trim();
+      if (!input) {
+        alert('Напиши хоть что-нибудь!');
+        return;
+      }
+      
+      if (isFirst) {
+        sendToTelegram(`🥣 Первое блюдо (свой вариант): ${input}`);
+        showSecondCourseStep();
+      } else {
+        sendToTelegram(`🍝 Второе блюдо (свой вариант): ${input}`);
+        showFinalStep();
+      }
+    });
+  }
+
+  /* ============================================ */
+  /* ============ ФИНАЛ ========================= */
+  /* ============================================ */
+  function showFinalStep() {
     modalContent.innerHTML = `
       <h3>Договорились!</h3>
-      <p style="color: #ffdde9; font-size: 1.1rem; line-height: 1.6;">Влад уже получил уведомление.<br>Он скоро свяжется с тобой, чтобы обсудить детали 😉</p>
+      <p style="color: #ffdde9; font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px;">Влад уже получил уведомление.<br>Он скоро свяжется с тобой, чтобы обсудить детали 😉</p>
+      <div style="font-size: 2rem;">❤️</div>
     `;
-  });
+  }
 
   /* ============================================ */
   /* ============ СЕРДЕЧКИ И ЭФФЕКТЫ ============ */
@@ -368,5 +465,4 @@
   resizeCanvas(); requestAnimationFrame(drawRain);
 </script>
 </body>
-</html>
 </html>
