@@ -61,6 +61,7 @@
   .photo:hover img { transform: scale(1.06); }
   .photo::after { content: "❤"; position: absolute; bottom: 10px; right: 12px; font-size: 1.1rem; color: #ff5c8a; text-shadow: 0 0 10px rgba(255,90,140,0.9); opacity: 0.85; pointer-events: none; }
 
+  /* Кнопка музыки */
   .music-btn {
     position: fixed; top: 16px; right: 16px; z-index: 20;
     display: flex; align-items: center; gap: 8px; padding: 10px 18px;
@@ -76,21 +77,40 @@
   .music-btn .music-icon { font-size: 1.1rem; line-height: 1; }
   @keyframes musicPulse { 0%, 100% { box-shadow: 0 0 20px rgba(255, 60, 120, 0.3); } 50% { box-shadow: 0 0 35px rgba(255, 60, 120, 0.6); } }
 
-  .proposal-section { background: rgba(20, 5, 15, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(255, 140, 175, 0.4); border-radius: 20px; padding: 40px 20px; max-width: 600px; margin: 0 auto; box-shadow: 0 15px 50px rgba(0,0,0,0.6), 0 0 40px rgba(255,60,120,0.2); }
-  .proposal-section h2 { font-family: 'Marck Script', cursive; font-size: clamp(2rem, 6vw, 3rem); color: #ffe0ea; margin-bottom: 30px; text-shadow: 0 0 15px rgba(255,90,140,0.8); }
-  .buttons-container { display: flex; justify-content: center; gap: 20px; position: relative; min-height: 60px; }
-  
-  .btn-choice { font-family: 'Montserrat', sans-serif; font-weight: 500; font-size: 1.1rem; padding: 12px 35px; border-radius: 50px; cursor: pointer; border: none; outline: none; text-transform: uppercase; letter-spacing: 1px; }
-  .btn-yes { background: linear-gradient(135deg, #ff2e63, #ff5c8a); color: #fff; box-shadow: 0 8px 20px rgba(255, 46, 99, 0.4); animation: pulse 2s infinite; transition: all 0.2s ease; }
-  .btn-yes:hover { transform: scale(1.05); box-shadow: 0 10px 25px rgba(255, 46, 99, 0.6); }
-  .btn-no { background: #2a0c1f; color: #ff8fa3; border: 1px solid #ff5c8a; position: relative; z-index: 10; transition: left 0.2s ease-out, top 0.2s ease-out; }
+  /* Подсказка для музыки */
+  .music-hint {
+    position: fixed;
+    bottom: 80px;
+    right: 16px;
+    z-index: 100;
+    display: none; /* Скрыто по умолчанию */
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 46, 99, 0.9);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    box-shadow: 0 5px 20px rgba(255, 46, 99, 0.5);
+    animation: hintPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+  .music-hint.show { display: flex; }
+  .music-hint .arrow {
+    font-size: 1.5rem;
+    display: inline-block;
+    animation: bounceArrow 1s infinite;
+  }
+  @keyframes hintPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes bounceArrow { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(5px, 5px); } }
 
+  /* Модалка */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
   .modal-content { background: linear-gradient(180deg, #2a0c1f, #150510); border: 1px solid rgba(255, 140, 175, 0.5); padding: 40px 30px; border-radius: 20px; text-align: center; max-width: 450px; width: 100%; box-shadow: 0 0 60px rgba(255,60,120,0.3); animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes modalIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .modal-content h3 { font-family: 'Marck Script', cursive; font-size: 2.2rem; color: #ffdde9; margin-bottom: 20px; line-height: 1.2; }
   
-  /* Стили для инпута (дата и свой ответ) */
   .modal-content input[type="datetime-local"], 
   .modal-content input[type="text"] { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid rgba(255, 140, 175, 0.5); background: rgba(0,0,0,0.5); color: #fff; font-family: 'Montserrat', sans-serif; font-size: 1rem; margin-bottom: 20px; outline: none; }
   .modal-content input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
@@ -120,9 +140,19 @@
     .proposal-section { padding: 30px 15px; }
     .buttons-container { flex-direction: column; gap: 15px; }
     .btn-choice { width: 100%; }
+    
+    /* Кнопка музыки на мобилке */
     .music-btn { top: auto; bottom: 16px; right: 16px; padding: 0; width: 50px; height: 50px; border-radius: 50%; justify-content: center; animation: none; }
     .music-btn .music-label { display: none; }
     .music-btn .music-icon { font-size: 1.35rem; }
+
+    /* Подсказка на мобилке */
+    .music-hint {
+      bottom: 80px;
+      right: 16px;
+      font-size: 0.9rem;
+      padding: 8px 14px;
+    }
   }
 </style>
 </head>
@@ -136,6 +166,12 @@
     <span class="music-icon">🔇</span>
     <span class="music-label">Включить музыку</span>
   </button>
+
+  <!-- ПОДСКАЗКА К МУЗЫКЕ -->
+  <div id="musicHint" class="music-hint">
+    <span>Включи звук!</span>
+    <span class="arrow">↘️</span>
+  </div>
 
   <div class="bg-photo" aria-hidden="true"></div>
   <div class="bg-overlay" aria-hidden="true"></div>
@@ -201,16 +237,29 @@
 
 <script>
   /* ============================================ */
-  /* ============ МУЗЫКА ======================== */
+  /* ============ МУЗЫКА И ПОДСКАЗКА ============ */
   /* ============================================ */
   const audio = document.getElementById('bgMusic');
   const musicBtn = document.getElementById('musicBtn');
   const musicIcon = musicBtn.querySelector('.music-icon');
   const musicLabel = musicBtn.querySelector('.music-label');
+  const musicHint = document.getElementById('musicHint');
+  const myVideo = document.getElementById('myVideo');
 
   audio.volume = 0.35;
 
+  // Показываем подсказку, когда видео заканчивается
+  myVideo.addEventListener('ended', () => {
+    // Показываем подсказку только если музыка сейчас на паузе
+    if (audio.paused) {
+      musicHint.classList.add('show');
+    }
+  });
+
   musicBtn.addEventListener('click', () => {
+    // Прячем подсказку при клике на кнопку
+    musicHint.classList.remove('show');
+
     if (audio.paused) {
       audio.play().then(() => {
         musicBtn.classList.add('playing');
@@ -319,7 +368,6 @@
       </div>
     `;
 
-    // Вешаем обработчик на кнопки ресторана
     modalContent.querySelectorAll('.restaurant-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const val = btn.getAttribute('data-val');
