@@ -1,47 +1,852 @@
-let viewedCount = 0;
-const totalPhotos = 6;
-let sequenceFinished = false;
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Софья и Влад</title>
 
-document.querySelectorAll('.photo').forEach((photo, index) => {
-  photo.addEventListener('click', function() {
-    this.classList.toggle('flipped');
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&family=Marck+Script&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    if (this.classList.contains('flipped') && !this.dataset.viewed) {
-      this.dataset.viewed = 'true';
-      viewedCount++;
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; overflow-y: auto; }
+  body {
+    font-family: 'Montserrat', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; min-height: 100dvh;
+    padding: 40px 20px 100px; position: relative; background: #150510;
+  }
 
-      if (viewedCount === totalPhotos && !sequenceFinished) {
-        sequenceFinished = true;
-        // Даем ей время прочитать последнее сообщение
-        setTimeout(() => {
-          swapPhotos();
-        }, 4000); // 4 секунды
-      }
-    }
-  });
-});
+  .bg-photo { position: fixed; inset: 0; z-index: 0; background: url("background.jpg") center/cover no-repeat; filter: blur(1px) brightness(0.55) saturate(1.05); transform: scale(1.05); }
+  .bg-overlay { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at 50% 30%, rgba(20,5,15,0.25) 0%, rgba(10,3,8,0.8) 100%), linear-gradient(180deg, rgba(15,3,10,0.55) 0%, rgba(10,2,8,0.85) 100%); pointer-events: none; }
+  
+  #rain-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity 1.2s ease; }
+  #rain-canvas.active { opacity: 1; }
+  #lightning { position: fixed; inset: 0; z-index: 1; background: radial-gradient(circle at 50% 30%, rgba(220,235,255,0.55) 0%, rgba(200,220,255,0.18) 40%, transparent 75%); opacity: 0; pointer-events: none; }
+  #lightning.flash { animation: flash 0.65s ease-out; }
+  @keyframes flash { 0% { opacity: 0; } 6% { opacity: 0.85; } 15% { opacity: 0.1; } 25% { opacity: 0.6; } 40% { opacity: 0.15; } 100% { opacity: 0; } }
 
-function swapPhotos() {
-  const newImages = [
-    'photo1_new.jpg',
-    'photo2_new.jpg',
-    'photo3_new.jpg',
-    'photo4_new.jpg',
-    'photo5_new.jpg',
-    'photo6_new.jpg'
-  ];
+  #hearts { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+  .heart { position: absolute; top: -12vh; line-height: 1; will-change: transform; animation-name: fall; animation-timing-function: linear; animation-iteration-count: infinite; filter: drop-shadow(0 0 6px rgba(255,80,130,0.55)); user-select: none; }
+  @keyframes fall { 0% { transform: translate3d(0, -12vh, 0) rotate(0deg); opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { transform: translate3d(var(--drift, 0px), 112vh, 0) rotate(var(--spin, 360deg)); opacity: 0; } }
 
-  // Меняем картинки, пока они перевернуты (она этого не увидит)
-  document.querySelectorAll('.photo-front img').forEach((img, i) => {
-    if (newImages[i]) {
-      img.src = newImages[i];
-    }
-  });
+  #love-notes { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+  .love-note { position: absolute; font-family: 'Marck Script', cursive; font-size: calc(clamp(1rem, 3.2vw, 1.7rem) * var(--scale, 1)); color: #ffe0ea; white-space: nowrap; text-shadow: 0 0 10px rgba(255,90,140,0.95), 0 0 26px rgba(255,50,110,0.6), 0 0 50px rgba(255,40,100,0.3); opacity: 0; will-change: opacity, transform; animation: loveFade var(--dur, 8s) ease-in-out forwards; user-select: none; }
+  @keyframes loveFade { 0% { opacity: 0; transform: translateY(10px) scale(0.94); } 20% { opacity: 1; transform: translateY(0) scale(1); } 75% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-12px) scale(1.03); } }
 
-  // Переворачиваем все обратно
+  .content { position: relative; z-index: 2; text-align: center; width: 100%; max-width: 860px; animation: appear 1.6s ease-out both; }
+  @keyframes appear { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  h1 { font-family: 'Marck Script', cursive; font-weight: 400; font-size: clamp(2.6rem, 11vw, 6.5rem); line-height: 1.15; background: linear-gradient(180deg, #ffffff 0%, #ffd0e0 45%, #ff5c8a 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 22px rgba(255,70,130,0.55)) drop-shadow(0 0 60px rgba(255,70,130,0.35)); animation: pulse 3.5s ease-in-out infinite; margin-bottom: clamp(20px, 4vw, 40px); padding: 0 10px; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+
+  .video-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: #12060d; border: 1px solid rgba(255,140,175,0.35); box-shadow: 0 0 0 6px rgba(255,110,160,0.08), 0 18px 60px rgba(0,0,0,0.7), 0 0 70px rgba(255,60,120,0.3); margin-bottom: clamp(36px, 6vw, 60px); }
+  .video-frame video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .video-hint {
+    position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
+    z-index: 10; display: flex; flex-direction: column; align-items: center;
+    background: rgba(255, 46, 99, 0.95); color: #fff; padding: 8px 20px; border-radius: 20px;
+    font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 1rem;
+    box-shadow: 0 5px 20px rgba(255, 46, 99, 0.6); animation: pulseVideoHint 2s infinite;
+    pointer-events: none; transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+  .video-hint.hidden { opacity: 0; visibility: hidden; }
+  .video-hint .arrow-down { font-size: 1.5rem; line-height: 1; margin-top: 5px; animation: bounceArrow 0.8s infinite alternate; }
+  @keyframes pulseVideoHint {
+    0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 15px rgba(255, 46, 99, 0.6); }
+    50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 30px rgba(255, 46, 99, 0.9); }
+  }
+  @keyframes bounceArrow { 0% { transform: translateY(0); } 100% { transform: translateY(8px); } }
+
+  .poem { font-family: 'Caveat', cursive; font-weight: 500; font-size: clamp(1.25rem, 3.6vw, 1.85rem); line-height: 1.55; color: #ffdde9; text-align: center; white-space: pre-line; letter-spacing: 0.3px; padding: 0 8px; margin: 0 auto clamp(36px, 6vw, 60px); max-width: 640px; text-shadow: 0 0 10px rgba(255,90,140,0.45), 0 0 26px rgba(255,40,100,0.25); }
+
+  .message { font-family: 'Montserrat', sans-serif; font-weight: 300; font-size: clamp(0.95rem, 2.2vw, 1.08rem); line-height: 1.75; color: #f1e4ea; text-align: justify; text-align-last: center; letter-spacing: 0.2px; max-width: 680px; margin: 0 auto clamp(20px, 4vw, 30px); padding: 28px 26px; border-top: 1px solid rgba(255,140,175,0.35); border-bottom: 1px solid rgba(255,140,175,0.35); background: rgba(20,5,15,0.35); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); border-radius: 4px; position: relative; }
+  .message::before, .message::after { content: ""; position: absolute; width: 18px; height: 18px; border-color: rgba(255,140,175,0.85); border-style: solid; }
+  .message::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .message::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+  .tap-instruction {
+    font-family: 'Marck Script', cursive;
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    color: #ffdde9;
+    margin-bottom: clamp(30px, 5vw, 50px);
+    text-shadow: 0 0 15px rgba(255, 90, 140, 0.9), 0 0 30px rgba(255, 40, 100, 0.5);
+    animation: pulse 2s infinite;
+  }
+
+  .gallery { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+    gap: clamp(14px, 2.5vw, 22px); 
+    max-width: 860px; 
+    margin: 0 auto clamp(50px, 8vw, 80px); 
+  }
+  
+  .photo { 
+    position: relative; 
+    aspect-ratio: 4 / 5; 
+    perspective: 1000px; 
+    cursor: pointer;
+    opacity: 0; 
+    transform: translateY(20px); 
+    animation: photoAppear 1.2s ease-out forwards; 
+  }
+  .photo:nth-child(1) { animation-delay: 0.1s; } .photo:nth-child(2) { animation-delay: 0.25s; } .photo:nth-child(3) { animation-delay: 0.4s; } .photo:nth-child(4) { animation-delay: 0.55s; } .photo:nth-child(5) { animation-delay: 0.7s; } .photo:nth-child(6) { animation-delay: 0.85s; }
+  @keyframes photoAppear { to { opacity: 1; transform: translateY(0); } }
+
+  .photo-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+  }
+
+  .photo.flipped .photo-inner {
+    transform: rotateY(180deg);
+  }
+
+  .photo-front, .photo-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255,140,175,0.35);
+    box-shadow: 0 0 0 4px rgba(255,110,160,0.06), 0 14px 40px rgba(0,0,0,0.6), 0 0 50px rgba(255,60,120,0.22);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .photo:hover .photo-front,
+  .photo:hover .photo-back {
+    box-shadow: 0 0 0 4px rgba(255,110,160,0.15), 0 22px 55px rgba(0,0,0,0.7), 0 0 70px rgba(255,60,120,0.4);
+  }
+
+  .photo-front {
+    background: #12060d;
+  }
+
+  .photo-front img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    display: block; 
+  }
+
+  .photo-front::after { 
+    content: "❤"; 
+    position: absolute; 
+    bottom: 10px; 
+    right: 12px; 
+    font-size: 1.1rem; 
+    color: #ff5c8a; 
+    text-shadow: 0 0 10px rgba(255,90,140,0.9); 
+    opacity: 0.85; 
+    pointer-events: none; 
+  }
+
+  .photo-back {
+    background: linear-gradient(180deg, #2a0c1f, #150510);
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .photo-back p {
+    font-family: 'Caveat', cursive;
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    color: #ffdde9;
+    line-height: 1.2;
+    text-shadow: 0 0 15px rgba(255,90,140,0.9);
+  }
+
+  .photo-back .heart-icon {
+    font-size: 2rem;
+    margin-top: 10px;
+    text-shadow: 0 0 15px #ff2e63;
+  }
+
+  .music-btn {
+    position: fixed; top: 16px; right: 16px; z-index: 20;
+    display: flex; align-items: center; gap: 8px; padding: 10px 18px;
+    background: rgba(30, 8, 20, 0.78); border: 1px solid rgba(255, 140, 175, 0.5);
+    border-radius: 100px; color: #ffdde9; font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem; font-weight: 400; letter-spacing: 0.3px;
+    cursor: pointer; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 0 20px rgba(255, 60, 120, 0.3); transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    animation: musicPulse 2.5s ease-in-out infinite;
+  }
+  .music-btn:hover { background: rgba(50, 12, 30, 0.9); box-shadow: 0 0 30px rgba(255, 60, 120, 0.55); transform: translateY(-1px); }
+  .music-btn.playing { animation: none; border-color: rgba(255, 140, 175, 0.85); box-shadow: 0 0 25px rgba(255, 100, 160, 0.55); }
+  .music-btn .music-icon { font-size: 1.1rem; line-height: 1; }
+  @keyframes musicPulse { 0%, 100% { box-shadow: 0 0 20px rgba(255, 60, 120, 0.3); } 50% { box-shadow: 0 0 35px rgba(255, 60, 120, 0.6); } }
+
+  .music-hint {
+    position: fixed; top: 70px; right: 16px; z-index: 100;
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255, 46, 99, 0.95); color: #fff;
+    padding: 8px 16px; border-radius: 20px;
+    font-family: 'Montserrat', sans-serif; font-weight: 500; font-size: 0.9rem;
+    box-shadow: 0 5px 20px rgba(255, 46, 99, 0.5);
+    animation: floatHint 2s infinite ease-in-out;
+    transition: opacity 0.3s ease, visibility 0.3s ease; cursor: pointer;
+  }
+  .music-hint.hidden { opacity: 0; visibility: hidden; }
+  .music-hint .arrow { font-size: 1.3rem; display: inline-block; animation: blinkArrow 0.8s infinite alternate; }
+  @keyframes blinkArrow { 0% { opacity: 1; transform: translate(0, 0); } 100% { opacity: 0.2; transform: translate(5px, 5px); } }
+  @keyframes floatHint { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+  .proposal-section { 
+    background: rgba(20, 5, 15, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); 
+    border: 1px solid rgba(255, 140, 175, 0.4); border-radius: 20px; padding: 40px 20px; 
+    max-width: 600px; margin: 0 auto; box-shadow: 0 15px 50px rgba(0,0,0,0.6), 0 0 40px rgba(255,60,120,0.2); 
+  }
+  
+  .proposal-section h2 { 
+    font-family: 'Marck Script', cursive; font-size: clamp(2.2rem, 8vw, 3rem); color: #ffffff; 
+    background: rgba(255, 46, 99, 0.15); border: 2px solid #ff2e63; padding: 10px 20px;
+    border-radius: 15px; display: inline-block; margin-bottom: 30px; 
+    text-shadow: 0 0 10px #ff2e63, 0 0 20px #ff2e63; box-shadow: 0 0 20px rgba(255, 46, 99, 0.4); width: 100%;
+  }
+
+  .buttons-container { display: flex; justify-content: center; gap: 20px; position: relative; min-height: 60px; }
+  .btn-choice { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 1.1rem; padding: 15px 35px; border-radius: 50px; cursor: pointer; border: none; outline: none; text-transform: uppercase; letter-spacing: 1px; }
+  .btn-yes { background: linear-gradient(135deg, #ff2e63, #ff5c8a); color: #fff; box-shadow: 0 8px 20px rgba(255, 46, 99, 0.4); animation: pulse 2s infinite; transition: all 0.2s ease; }
+  .btn-yes:hover { transform: scale(1.05); box-shadow: 0 10px 25px rgba(255, 46, 99, 0.6); }
+  .btn-no { background: #2a0c1f; color: #ff8fa3; border: 2px solid #ff5c8a; position: relative; z-index: 10; transition: left 0.2s ease-out, top 0.2s ease-out; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .modal-content { background: linear-gradient(180deg, #2a0c1f, #150510); border: 1px solid rgba(255, 140, 175, 0.5); padding: 40px 30px; border-radius: 20px; text-align: center; max-width: 450px; width: 100%; box-shadow: 0 0 60px rgba(255,60,120,0.3); animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes modalIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-content h3 { font-family: 'Marck Script', cursive; font-size: 2.2rem; color: #ffdde9; margin-bottom: 20px; line-height: 1.2; }
+  
+  .modal-content input[type="datetime-local"], 
+  .modal-content input[type="text"] { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid rgba(255, 140, 175, 0.5); background: rgba(0,0,0,0.5); color: #fff; font-family: 'Montserrat', sans-serif; font-size: 1rem; margin-bottom: 20px; outline: none; }
+  .modal-content input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+  
+  .btn-submit { background: linear-gradient(135deg, #ff2e63, #ff5c8a); color: #fff; border: none; padding: 15px 30px; font-size: 1rem; border-radius: 50px; cursor: pointer; font-weight: 500; width: 100%; transition: 0.2s; }
+  .btn-submit:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(255,60,120,0.5); }
+
+  .restaurant-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+  .restaurant-btn {
+    font-family: 'Montserrat', sans-serif; font-size: 1.05rem; font-weight: 500;
+    padding: 16px 20px; background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 140, 175, 0.4); border-radius: 12px;
+    color: #ffdde9; cursor: pointer; transition: all 0.3s ease;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    letter-spacing: 0.5px; text-align: center;
+  }
+  .restaurant-btn:hover { background: rgba(255, 46, 99, 0.15); border-color: #ff5c8a; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 46, 99, 0.3); }
+
+  .certificate {
+    background: repeating-linear-gradient(45deg, rgba(255,46,99,0.05), rgba(255,46,99,0.05) 10px, transparent 10px, transparent 20px), rgba(0,0,0,0.4);
+    border: 2px dashed #ff5c8a;
+    border-radius: 15px;
+    padding: 25px 20px;
+    margin-top: 10px;
+    box-shadow: 0 10px 30px rgba(255,46,99,0.2), inset 0 0 20px rgba(255,46,99,0.1);
+    text-align: left;
+  }
+  .certificate h3 { text-align: center; font-size: 1.8rem; margin-bottom: 20px; text-shadow: 0 0 15px #ff2e63; }
+  .cert-row { margin-bottom: 12px; font-size: 1rem; color: #f1e4ea; border-bottom: 1px solid rgba(255,140,175,0.2); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .cert-row span { opacity: 0.8; }
+  .cert-row b { color: #fff; text-align: right; max-width: 60%; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
+  
+  .timer-box {
+    margin-top: 25px;
+    text-align: center;
+    background: rgba(255, 46, 99, 0.15);
+    border: 1px solid #ff5c8a;
+    border-radius: 10px;
+    padding: 15px;
+  }
+  .timer-box p { font-size: 0.9rem; color: #ffdde9; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+  .countdown { font-size: 1.4rem; font-weight: 600; color: #fff; text-shadow: 0 0 10px #ff2e63; font-variant-numeric: tabular-nums; }
+  
+  .cert-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+  }
+  .btn-cert {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ff5c8a;
+    background: rgba(255, 46, 99, 0.1);
+    color: #ffdde9;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 0.95rem;
+  }
+  .btn-cert:hover {
+    background: rgba(255, 46, 99, 0.3);
+    box-shadow: 0 0 15px rgba(255, 46, 99, 0.4);
+  }
+
+  .cert-footer { text-align: center; margin-top: 20px; font-size: 0.95rem; color: #ffdde9; font-style: italic; }
+
+  @media (max-width: 640px) {
+    body { padding: 24px 14px 90px; }
+    h1 { margin-bottom: 16px; }
+    .video-frame { border-radius: 14px; margin-bottom: 28px; }
+    .video-hint { font-size: 0.8rem; padding: 6px 14px; top: 10px; }
+    .poem { font-size: clamp(1.1rem, 4.6vw, 1.5rem); line-height: 1.5; margin-bottom: 32px; }
+    .message { font-size: 0.95rem; line-height: 1.7; padding: 20px 18px; text-align: left; text-align-last: left; margin-bottom: 40px; }
+    .tap-instruction { font-size: 1.5rem; margin-bottom: 20px; }
+    .gallery { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .photo-front, .photo-back { border-radius: 12px; }
+    .proposal-section { padding: 30px 15px; }
+    .buttons-container { flex-direction: column; gap: 15px; }
+    .btn-choice { width: 100%; }
+    
+    .music-btn { top: auto; bottom: 16px; right: 16px; padding: 0; width: 50px; height: 50px; border-radius: 50%; justify-content: center; animation: none; }
+    .music-btn .music-label { display: none; }
+    .music-btn .music-icon { font-size: 1.35rem; }
+    .music-hint { top: 16px; bottom: auto; right: 16px; font-size: 0.75rem; padding: 6px 12px; max-width: 60%; line-height: 1.2; }
+    
+    .certificate { padding: 15px 10px; }
+    .cert-row { font-size: 0.9rem; flex-direction: column; align-items: flex-start; gap: 4px; }
+    .cert-row b { text-align: left; max-width: 100%; }
+    .countdown { font-size: 1.1rem; }
+    .cert-buttons { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+  <audio id="bgMusic" loop preload="none">
+    <source src="music.mp3" type="audio/mpeg">
+  </audio>
+
+  <button id="musicBtn" class="music-btn" type="button" aria-label="Включить музыку">
+    <span class="music-icon">🔇</span>
+    <span class="music-label">Включить музыку</span>
+  </button>
+
+  <div id="musicHint" class="music-hint">
+    <span>Включи звук после просмотра видео</span>
+    <span class="arrow">↘️</span>
+  </div>
+
+  <div class="bg-photo" aria-hidden="true"></div>
+  <div class="bg-overlay" aria-hidden="true"></div>
+
+  <canvas id="rain-canvas" aria-hidden="true"></canvas>
+  <div id="lightning" aria-hidden="true"></div>
+
+  <div id="hearts" aria-hidden="true"></div>
+  <div id="love-notes" aria-hidden="true"></div>
+
+  <main class="content">
+    <h1>Софья и Влад</h1>
+
+    <div class="video-frame">
+      <video id="myVideo" controls playsinline preload="metadata">
+        <source src="video.mp4" type="video/mp4">
+      </video>
+      <div id="videoHint" class="video-hint">
+        <span>Нажми на видео и посмотри</span>
+        <span class="arrow-down">👇</span>
+      </div>
+    </div>
+
+    <section class="poem" id="poem">Ночь, гроза и звезды тлеют
+Я смотрю на это без сомнений
+Без сомнений что люблю
+Без сомнений не забуду
+Без сомнений все прощу
+Сомневаться мне не нужно
+Мне не сложно, нет не трудно
+Вижу все в тебе я и семью
+И двух детей и беззаботных
+Пару дней, я закончу монолог
+На словах без рифмы в строчке
+Потому что я люблю
+Я люблю тебя бессрочно
+С рифмой даже я закончил
+Оцени ты это молча….</section>
+
+    <section class="message">
+      Этот стих я тебе писал давно, но с того момента ничего не изменилось: мои чувства также сильны и остались к тебе. Этот сайт — просто как маленькое доказательство того, что я готов изучать что-то новое и двигаться дальше ради тебя и с тобой. Если есть хоть малейший шанс — дай мне им воспользоваться.
+    </section>
+
+    <div class="tap-instruction" id="tapInstruction">Нажми на каждое фото 👇</div>
+
+    <section class="gallery" id="gallery">
+      <figure class="photo">
+        <div class="photo-inner">
+          <div class="photo-front"><img src="photo1.jpg" alt="Фото 1"></div>
+          <div class="photo-back"><p>Ты самая красивая</p><span class="heart-icon">❤️</span></div>
+        </div>
+      </figure>
+      <figure class="photo">
+        <div class="photo-inner">
+          <div class="photo-front"><img src="photo2.jpg" alt="Фото 2"></div>
+          <div class="photo-back"><p>Люблю твою улыбку</p><span class="heart-icon">😍</span></div>
+        </div>
+      </figure>
+      <figure class="photo">
+        <div class="photo-inner">
+          <div class="photo-front"><img src="photo3.jpg" alt="Фото 3"></div>
+          <div class="photo-back"><p>Мой любимый момент</p><span class="heart-icon">✨</span></div>
+        </div>
+      </figure>
+      <figure class="photo">
+        <div class="photo-inner">
+          <div class="photo-front"><img src="photo4.jpg" alt="Фото 4"></div>
+          <div class="photo-back"><p>С тобой всегда тепло</p><span class="heart-icon">☀️</span></div>
+        </div>
+      </figure>
+      <figure class="photo">
+        <div class="photo-inner">
+          <div class="photo-front"><img src="photo5.jpg" alt="Фото 5"></div>
+          <div class="photo-back"><p>Ты — моё всё</p><span class="heart-icon">🌍</span></div>
+        </div>
+      </figure>
+      <figure class="photo">
+        <div class="photo-inner">
+          <div class="photo-front"><img src="photo6.jpg" alt="Фото 6"></div>
+          <div class="photo-back"><p>Навсегда твой</p><span class="heart-icon">💍</span></div>
+        </div>
+      </figure>
+    </section>
+
+    <section class="proposal-section" id="proposalSection">
+      <h2>Пойдем на свидание?</h2>
+      <div class="buttons-container">
+        <button class="btn-choice btn-yes" id="btnYes">Да</button>
+        <button class="btn-choice btn-no" id="btnNo">Нет</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-overlay" id="dateModal">
+    <div class="modal-content" id="modalContent">
+    </div>
+  </div>
+
+<script>
+  /* ============================================ */
+  /* ============ ПЕРЕМЕННЫЕ ДЛЯ СЕРТИФИКАТА ===== */
+  /* ============================================ */
+  let choiceDate = '';
+  let choiceDateObj = null; 
+  let choiceRestaurant = '';
+  let choiceDish1 = '';
+  let choiceDish2 = '';
+  let timerInterval = null;
+
+  /* ============================================ */
+  /* ============ ЛОГИКА ФЛИПА И СЮРПРИЗА ======= */
+  /* ============================================ */
+  let viewedCount = 0;
+  const totalPhotos = 6;
+  let sequenceFinished = false;
+
   document.querySelectorAll('.photo').forEach(photo => {
-    photo.classList.remove('flipped');
+    photo.addEventListener('click', function() {
+      this.classList.toggle('flipped');
+
+      if (this.classList.contains('flipped') && !this.dataset.viewed) {
+        this.dataset.viewed = 'true';
+        viewedCount++;
+
+        if (viewedCount === totalPhotos && !sequenceFinished) {
+          sequenceFinished = true;
+          setTimeout(() => {
+            swapPhotos();
+          }, 4000);
+        }
+      }
+    });
   });
 
-  // Опционально: можно добавить всплывающую надпись "Сюрприз! Вот еще фото"
-}
+  function swapPhotos() {
+    const newImages = [
+      'photo1_new.jpg',
+      'photo2_new.jpg',
+      'photo3_new.jpg',
+      'photo4_new.jpg',
+      'photo5_new.jpg',
+      'photo6_new.jpg'
+    ];
+
+    document.querySelectorAll('.photo-front img').forEach((img, i) => {
+      if (newImages[i]) {
+        img.src = newImages[i];
+      }
+    });
+
+    document.querySelectorAll('.photo').forEach(photo => {
+      photo.classList.remove('flipped');
+    });
+
+    const instruction = document.getElementById('tapInstruction');
+    if (instruction) {
+      instruction.textContent = 'Сюрприз! А вот еще наши моменты ❤️';
+      instruction.style.animation = 'none';
+    }
+  }
+
+  /* ============================================ */
+  /* ============ МУЗЫКА И ПОДСКАЗКИ ============ */
+  /* ============================================ */
+  const audio = document.getElementById('bgMusic');
+  const musicBtn = document.getElementById('musicBtn');
+  const musicIcon = musicBtn.querySelector('.music-icon');
+  const musicLabel = musicBtn.querySelector('.music-label');
+  const musicHint = document.getElementById('musicHint');
+  const videoHint = document.getElementById('videoHint');
+  const myVideo = document.getElementById('myVideo');
+
+  audio.volume = 0.35;
+
+  myVideo.addEventListener('play', () => {
+    videoHint.classList.add('hidden');
+  });
+
+  function toggleMusic() {
+    if (audio.paused) {
+      audio.play().then(() => {
+        musicBtn.classList.add('playing');
+        musicIcon.textContent = '🔊';
+        musicLabel.textContent = 'Выключить музыку';
+        musicHint.classList.add('hidden');
+      }).catch(() => {
+        musicLabel.textContent = 'Добавь music.mp3';
+        setTimeout(() => { musicLabel.textContent = 'Включить музыку'; }, 2500);
+      });
+    } else {
+      audio.pause();
+      musicBtn.classList.remove('playing');
+      musicIcon.textContent = '🔇';
+      musicLabel.textContent = 'Включить музыку';
+    }
+  }
+
+  musicBtn.addEventListener('click', toggleMusic);
+  musicHint.addEventListener('click', toggleMusic);
+
+  /* ============================================ */
+  /* ============ TELEGRAM ====================== */
+  /* ============================================ */
+  const TG_TOKEN = '9262870111:AAHFdrZGedlG0JakCEDFcxFCwXCGUD8ZprU'; 
+  const TG_CHAT_ID = '1121644244';
+  const PROXY_URL = 'https://square-lake-8c0d.bibercxzp.workers.dev';
+
+  function sendToTelegram(text) {
+    const url = `${PROXY_URL}/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=${encodeURIComponent(text)}&t=${Date.now()}`;
+    const img = new Image();
+    img.src = url;
+  }
+
+  /* ============================================ */
+  /* ============ КНОПКИ ДА / НЕТ =============== */
+  /* ============================================ */
+  const btnNo = document.getElementById('btnNo');
+  const btnYes = document.getElementById('btnYes');
+  const modal = document.getElementById('dateModal');
+  const modalContent = document.getElementById('modalContent');
+  const proposalSection = document.getElementById('proposalSection');
+  
+  let hasTriedNo = false;
+
+  function dodgeButton(e) {
+    if (e) e.preventDefault();
+    if (btnNo.style.position !== 'fixed') {
+      btnNo.style.position = 'fixed';
+      btnNo.style.zIndex = '9999';
+    }
+    const padding = 20;
+    const btnWidth = btnNo.offsetWidth || 100;
+    const btnHeight = btnNo.offsetHeight || 50;
+    const maxX = window.innerWidth - btnWidth - padding;
+    const maxY = window.innerHeight - btnHeight - padding;
+    const x = Math.max(padding, Math.random() * maxX);
+    const y = Math.max(padding, Math.random() * maxY);
+    btnNo.style.left = `${x}px`;
+    btnNo.style.top = `${y}px`;
+
+    if (!hasTriedNo) {
+      sendToTelegram("⚠️ Софья попыталась нажать кнопку 'Нет'! (Но она убежала 😂)");
+      hasTriedNo = true;
+    }
+  }
+
+  btnNo.addEventListener('mouseenter', dodgeButton);
+  btnNo.addEventListener('touchstart', dodgeButton, { passive: false });
+
+  btnYes.addEventListener('click', () => {
+    proposalSection.style.display = 'none';
+    modal.style.display = 'flex';
+    sendToTelegram("❤️ ОНА НАЖАЛА 'ДА'! Ждет окно выбора даты.");
+    showDateStep();
+  });
+
+  /* ============================================ */
+  /* ============ ШАГ 1: ДАТА =================== */
+  /* ============================================ */
+  function showDateStep() {
+    modalContent.innerHTML = `
+      <h3>Ура! Когда встретимся?</h3>
+      <input type="datetime-local" id="dateInput">
+      <button class="btn-submit" id="btnSubmitDate">Отправить Владу</button>
+    `;
+    
+    document.getElementById('btnSubmitDate').addEventListener('click', () => {
+      const dateVal = document.getElementById('dateInput').value;
+      if (!dateVal) {
+        alert('Выбери дату и время, пожалуйста!');
+        return;
+      }
+      
+      choiceDate = dateVal.replace('T', ' '); 
+      choiceDateObj = new Date(dateVal); 
+      
+      sendToTelegram(`🎉 УРА! ОНА ВЫБРАЛА ДАТУ СВИДАНИЯ:\n📅 ${choiceDate}`);
+      showRestaurantStep();
+    });
+  }
+
+  /* ============================================ */
+  /* ============ ШАГ 2: РЕСТОРАН =============== */
+  /* ============================================ */
+  function showRestaurantStep() {
+    modalContent.innerHTML = `
+      <h3>Отличный выбор!<br>А куда пойдем?</h3>
+      <div class="restaurant-list">
+        <button class="restaurant-btn" data-val="Кубрик">🍔 Кубрик</button>
+        <button class="restaurant-btn" data-val="Касса">🍷 Касса</button>
+        <button class="restaurant-btn" data-val="Краснодар Фуд Маркет">🥙 Краснодар Фуд Маркет</button>
+      </div>
+    `;
+
+    modalContent.querySelectorAll('.restaurant-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        choiceRestaurant = btn.getAttribute('data-val');
+        sendToTelegram(`🍽 Софья выбрала ресторан: ${choiceRestaurant}`);
+        showFirstCourseStep();
+      });
+    });
+  }
+
+  /* ============================================ */
+  /* ============ ШАГ 3: ПЕРВОЕ БЛЮДО =========== */
+  /* ============================================ */
+  function showFirstCourseStep() {
+    modalContent.innerHTML = `
+      <h3>Что будешь кушать?<br><span style="font-size: 1.2rem; color: #ff8fa3;">(На первое)</span></h3>
+      <div class="restaurant-list">
+        <button class="restaurant-btn first-course" data-val="Борщ">🥣 Борщ</button>
+        <button class="restaurant-btn first-course" data-val="Том Ям">🍲 Том Ям</button>
+        <button class="restaurant-btn first-course" data-val="Суп с морепродуктами">🦞 Суп с морепродуктами</button>
+        <button class="restaurant-btn custom-btn" data-target="first">✍️ Свой ответ</button>
+      </div>
+    `;
+
+    modalContent.querySelectorAll('.first-course').forEach(btn => {
+      btn.addEventListener('click', () => {
+        choiceDish1 = btn.getAttribute('data-val');
+        sendToTelegram(`🥣 Первое блюдо: ${choiceDish1}`);
+        showSecondCourseStep();
+      });
+    });
+
+    modalContent.querySelector('.custom-btn').addEventListener('click', () => {
+      showCustomInputStep('first');
+    });
+  }
+
+  /* ============================================ */
+  /* ============ ШАГ 4: ВТОРОЕ БЛЮДО =========== */
+  /* ============================================ */
+  function showSecondCourseStep() {
+    modalContent.innerHTML = `
+      <h3>Ммм, вкусно!<br><span style="font-size: 1.2rem; color: #ff8fa3;">А что на второе?</span></h3>
+      <div class="restaurant-list">
+        <button class="restaurant-btn second-course" data-val="Салат Цезарь">🥗 Салат Цезарь</button>
+        <button class="restaurant-btn second-course" data-val="Карбонара">🍝 Карбонара</button>
+        <button class="restaurant-btn second-course" data-val="Спагетти с морепродуктами">🦐 Спагетти с морепродуктами</button>
+        <button class="restaurant-btn custom-btn" data-target="second">✍️ Свой ответ</button>
+      </div>
+    `;
+
+    modalContent.querySelectorAll('.second-course').forEach(btn => {
+      btn.addEventListener('click', () => {
+        choiceDish2 = btn.getAttribute('data-val');
+        sendToTelegram(`🍝 Второе блюдо: ${choiceDish2}`);
+        showFinalStep();
+      });
+    });
+
+    modalContent.querySelector('.custom-btn').addEventListener('click', () => {
+      showCustomInputStep('second');
+    });
+  }
+
+  /* ============================================ */
+  /* ============ СВОЙ ОТВЕТ (ИНПУТ) ============ */
+  /* ============================================ */
+  function showCustomInputStep(target) {
+    const isFirst = target === 'first';
+    const title = isFirst ? 'Что на первое?' : 'А что на второе?';
+    
+    modalContent.innerHTML = `
+      <h3>${title}</h3>
+      <input type="text" id="customInput" placeholder="Напиши свой вариант..." autocomplete="off">
+      <button class="btn-submit" id="btnSubmitCustom">Отправить</button>
+    `;
+
+    document.getElementById('btnSubmitCustom').addEventListener('click', () => {
+      const input = document.getElementById('customInput').value.trim();
+      if (!input) {
+        alert('Напиши хоть что-нибудь!');
+        return;
+      }
+      
+      if (isFirst) {
+        choiceDish1 = input;
+        sendToTelegram(`🥣 Первое блюдо (свой вариант): ${choiceDish1}`);
+        showSecondCourseStep();
+      } else {
+        choiceDish2 = input;
+        sendToTelegram(`🍝 Второе блюдо (свой вариант): ${choiceDish2}`);
+        showFinalStep();
+      }
+    });
+  }
+
+  /* ============================================ */
+  /* ============ ФИНАЛ: БИЛЕТ И ТАЙМЕР ========= */
+  /* ============================================ */
+  function showFinalStep() {
+    sendToTelegram(`🎊 Полный заказ собран!\n🍽 Ресторан: ${choiceRestaurant}\n🥣 1-е: ${choiceDish1}\n🍝 2-е: ${choiceDish2}`);
+    
+    modalContent.innerHTML = `
+      <div class="certificate">
+        <h3>Билет на свидание</h3>
+        <div class="cert-row"><span>Кавалер:</span> <b>Влад</b></div>
+        <div class="cert-row"><span>Дама:</span> <b>Софья</b></div>
+        <div class="cert-row"><span>Ресторан:</span> <b>${choiceRestaurant}</b></div>
+        <div class="cert-row"><span>Меню:</span> <b>${choiceDish1}, ${choiceDish2}</b></div>
+        <div class="cert-row"><span>Дата:</span> <b>${choiceDate}</b></div>
+        
+        <div class="timer-box">
+          <p>До встречи осталось:</p>
+          <div id="countdown" class="countdown">Расчет времени...</div>
+        </div>
+
+        <div class="cert-buttons">
+          <button class="btn-cert" id="btnCalendar">📅 В календарь</button>
+        </div>
+
+        <p class="cert-footer">Жду тебя в ЛС, обсудим все детали 😉</p>
+      </div>
+    `;
+
+    startCountdown();
+
+    document.getElementById('btnCalendar').addEventListener('click', () => {
+      if (!choiceDateObj) return;
+      const endDateObj = new Date(choiceDateObj.getTime() + 2 * 60 * 60 * 1000);
+      const formatICSDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+      
+      const icsContent = [
+        'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Love Site//Date//RU',
+        'BEGIN:VEVENT', `UID:${Date.now()}@lovesite.com`,
+        `DTSTAMP:${formatICSDate(new Date())}`,
+        `DTSTART:${formatICSDate(choiceDateObj)}`,
+        `DTEND:${formatICSDate(endDateObj)}`,
+        `SUMMARY:Свидание с Софьей ❤️`,
+        `DESCRIPTION:Ресторан: ${choiceRestaurant}. Меню: ${choiceDish1}, ${choiceDish2}.`,
+        'END:VEVENT', 'END:VCALENDAR'
+      ].join('\r\n');
+
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'date_with_sonya.ics';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  /* ============================================ */
+  /* ============ ЛОГИКА ТАЙМЕРА ================ */
+  /* ============================================ */
+  function startCountdown() {
+    const countdownEl = document.getElementById('countdown');
+    if (!countdownEl || !choiceDateObj) return;
+    if (timerInterval) clearInterval(timerInterval);
+
+    timerInterval = setInterval(() => {
+      const distance = choiceDateObj.getTime() - new Date().getTime();
+      if (distance < 0) {
+        clearInterval(timerInterval);
+        countdownEl.innerHTML = "Время пришло! 💖";
+        return;
+      }
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      countdownEl.innerHTML = `${days} дн. ${hours} ч. ${minutes} мин. ${seconds} сек.`;
+    }, 1000);
+  }
+
+  /* ============================================ */
+  /* ============ СЕРДЕЧКИ И ЭФФЕКТЫ ============ */
+  /* ============================================ */
+  const container = document.getElementById('hearts');
+  const COLORS = ['#ff2e63', '#ff4d6d', '#ff758f', '#ff8fa3', '#ffa5b8', '#ffc2d1', '#ffd6e0', '#e63980'];
+  function createHeart() {
+    const heart = document.createElement('span'); heart.className = 'heart'; heart.textContent = '❤';
+    const size = 12 + Math.random() * 30; const duration = 7 + Math.random() * 9; const drift = (Math.random() - 0.5) * 220;
+    heart.style.left = Math.random() * 100 + 'vw'; heart.style.fontSize = size + 'px';
+    heart.style.color = COLORS[(Math.random() * COLORS.length) | 0]; heart.style.opacity = 0.35 + Math.random() * 0.6;
+    heart.style.animationDuration = duration + 's'; heart.style.animationDelay = -Math.random() * duration + 's';
+    heart.style.setProperty('--drift', drift + 'px'); heart.style.setProperty('--spin', (Math.random() > 0.5 ? 360 : -360) + 'deg');
+    container.appendChild(heart); setTimeout(() => heart.remove(), duration * 1000 + 500);
+  }
+  for (let i = 0; i < 25; i++) setTimeout(createHeart, i * 120);
+  setInterval(createHeart, 300);
+
+  const loveLayer = document.getElementById('love-notes');
+  function pickPosition() { for (let i = 0; i < 12; i++) { const x = 4 + Math.random() * 88; const y = 8 + Math.random() * 80; if (Math.abs(x - 50) < 26 && Math.abs(y - 50) < 30) continue; return [x, y]; } return [4 + Math.random() * 88, 8 + Math.random() * 80]; }
+  function spawnLoveNote() {
+    const el = document.createElement('div'); el.className = 'love-note'; el.textContent = 'я тебя очень люблю';
+    const [x, y] = pickPosition(); el.style.left = x + 'vw'; el.style.top = y + 'vh';
+    const dur = 7 + Math.random() * 4; el.style.setProperty('--dur', dur + 's'); el.style.setProperty('--scale', (0.85 + Math.random() * 0.5).toFixed(2));
+    loveLayer.appendChild(el); setTimeout(() => el.remove(), dur * 1000 + 400);
+  }
+  setTimeout(spawnLoveNote, 900); setTimeout(spawnLoveNote, 2200); setInterval(spawnLoveNote, 1900);
+
+  const canvas = document.getElementById('rain-canvas'); const ctx = canvas.getContext('2d'); const lightningEl = document.getElementById('lightning'); const poemEl = document.getElementById('poem');
+  let rainActive = false; let drops = []; let lightningTimeout = null;
+  function resizeCanvas() { const dpr = window.devicePixelRatio || 1; canvas.width = window.innerWidth * dpr; canvas.height = window.innerHeight * dpr; canvas.style.width = window.innerWidth + 'px'; canvas.style.height = window.innerHeight + 'px'; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); createDrops(); }
+  function createDrops() { const count = Math.min(220, Math.floor((window.innerWidth * window.innerHeight) / 7000)); drops = []; for (let i = 0; i < count; i++) { drops.push({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, len: 10 + Math.random() * 18, speed: 7 + Math.random() * 9, opacity: 0.12 + Math.random() * 0.28 }); } }
+  function drawRain() { if (rainActive) { ctx.clearRect(0, 0, window.innerWidth, window.innerHeight); ctx.strokeStyle = 'rgba(205, 225, 255, 0.75)'; ctx.lineWidth = 1; ctx.lineCap = 'round'; for (const d of drops) { ctx.globalAlpha = d.opacity; ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(d.x - d.len * 0.15, d.y + d.len); ctx.stroke(); d.y += d.speed; d.x -= d.speed * 0.12; if (d.y > window.innerHeight + 20) { d.y = -20; d.x = Math.random() * window.innerWidth; } if (d.x < -20) d.x = window.innerWidth + 20; } ctx.globalAlpha = 1; } requestAnimationFrame(drawRain); }
+  function scheduleLightning() { lightningTimeout = setTimeout(() => { if (!rainActive) return; triggerFlash(); scheduleLightning(); }, 4000 + Math.random() * 7000); }
+  function triggerFlash() { lightningEl.classList.remove('flash'); void lightningEl.offsetWidth; lightningEl.classList.add('flash'); setTimeout(() => lightningEl.classList.remove('flash'), 700); }
+  function startRain() { if (rainActive) return; rainActive = true; canvas.classList.add('active'); scheduleLightning(); }
+  function stopRain() { if (!rainActive) return; rainActive = false; canvas.classList.remove('active'); clearTimeout(lightningTimeout); lightningTimeout = null; lightningEl.classList.remove('flash'); setTimeout(() => { if (!rainActive) { ctx.clearRect(0, 0, window.innerWidth, window.innerHeight); } }, 1300); }
+  function updateRain() { if (!poemEl) return; const rect = poemEl.getBoundingClientRect(); const trigger = rect.top < window.innerHeight * 0.7; if (trigger) startRain(); else stopRain(); }
+  window.addEventListener('resize', resizeCanvas); window.addEventListener('scroll', updateRain, { passive: true }); window.addEventListener('load', updateRain);
+  resizeCanvas(); requestAnimationFrame(drawRain);
+</script>
+</body>
+</html>
