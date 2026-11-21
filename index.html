@@ -68,6 +68,7 @@
   .message::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
   .message::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
 
+  /* Подсказка к фото */
   .tap-instruction {
     font-family: 'Marck Script', cursive;
     font-size: clamp(1.6rem, 5vw, 2.2rem);
@@ -77,6 +78,9 @@
     animation: pulse 2s infinite;
   }
 
+  /* ========================================== */
+  /* ============ ГАЛЕРЕЯ С 3D-ФЛИПОМ ========= */
+  /* ========================================== */
   .gallery { 
     display: grid; 
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
@@ -151,6 +155,7 @@
     pointer-events: none; 
   }
 
+  /* Обратная сторона */
   .photo-back {
     background: linear-gradient(180deg, #2a0c1f, #150510);
     transform: rotateY(180deg);
@@ -176,6 +181,9 @@
     text-shadow: 0 0 15px #ff2e63;
   }
 
+  /* ========================================== */
+  /* ============ ОСТАЛЬНЫЕ СТИЛИ ============== */
+  /* ========================================== */
   .music-btn {
     position: fixed; top: 16px; right: 16px; z-index: 20;
     display: flex; align-items: center; gap: 8px; padding: 10px 18px;
@@ -384,43 +392,63 @@
       Этот стих я тебе писал давно, но с того момента ничего не изменилось: мои чувства также сильны и остались к тебе. Этот сайт — просто как маленькое доказательство того, что я готов изучать что-то новое и двигаться дальше ради тебя и с тобой. Если есть хоть малейший шанс — дай мне им воспользоваться.
     </section>
 
-    <div class="tap-instruction" id="tapInstruction">Нажми на каждое фото 👇</div>
+    <!-- ПОДСКАЗКА К ФОТО -->
+    <div class="tap-instruction">Нажми на каждое фото 👇</div>
 
-    <section class="gallery" id="gallery">
+    <!-- ГАЛЕРЕЯ С ФЛИПОМ -->
+    <section class="gallery">
       <figure class="photo">
         <div class="photo-inner">
           <div class="photo-front"><img src="photo1.jpg" alt="Фото 1"></div>
-          <div class="photo-back"><p>Ты самая красивая</p><span class="heart-icon">❤️</span></div>
+          <div class="photo-back">
+            <p>Ты самая красивая</p>
+            <span class="heart-icon">❤️</span>
+          </div>
         </div>
       </figure>
       <figure class="photo">
         <div class="photo-inner">
           <div class="photo-front"><img src="photo2.jpg" alt="Фото 2"></div>
-          <div class="photo-back"><p>Люблю твою улыбку</p><span class="heart-icon">😍</span></div>
+          <div class="photo-back">
+            <p>Люблю твою улыбку</p>
+            <span class="heart-icon">😍</span>
+          </div>
         </div>
       </figure>
       <figure class="photo">
         <div class="photo-inner">
           <div class="photo-front"><img src="photo3.jpg" alt="Фото 3"></div>
-          <div class="photo-back"><p>Мой любимый момент</p><span class="heart-icon">✨</span></div>
+          <div class="photo-back">
+            <p>Мой любимый момент</p>
+            <span class="heart-icon">✨</span>
+          </div>
         </div>
       </figure>
       <figure class="photo">
         <div class="photo-inner">
           <div class="photo-front"><img src="photo4.jpg" alt="Фото 4"></div>
-          <div class="photo-back"><p>С тобой всегда тепло</p><span class="heart-icon">☀️</span></div>
+          <div class="photo-back">
+            <p>С тобой всегда тепло</p>
+            <span class="heart-icon">☀️</span>
+          </div>
         </div>
       </figure>
       <figure class="photo">
         <div class="photo-inner">
           <div class="photo-front"><img src="photo5.jpg" alt="Фото 5"></div>
-          <div class="photo-back"><p>Ты — моё всё</p><span class="heart-icon">🌍</span></div>
+          <div class="photo-back">
+            <p>Ты — моё всё</p>
+            <span class="heart-icon">🌍</span>
+          </div>
         </div>
       </figure>
       <figure class="photo">
         <div class="photo-inner">
           <div class="photo-front"><img src="photo6.jpg" alt="Фото 6"></div>
-          <div class="photo-back"><p>Навсегда твой</p><span class="heart-icon">💍</span></div>
+          <div class="photo-back">
+            <p>Навсегда твой</p>
+            <span class="heart-icon">💍</span>
+          </div>
         </div>
       </figure>
     </section>
@@ -451,56 +479,13 @@
   let timerInterval = null;
 
   /* ============================================ */
-  /* ============ ЛОГИКА ФЛИПА И СЮРПРИЗА ======= */
+  /* ============ ЛОГИКА ФЛИПА ФОТО ============= */
   /* ============================================ */
-  let viewedCount = 0;
-  const totalPhotos = 6;
-  let sequenceFinished = false;
-
   document.querySelectorAll('.photo').forEach(photo => {
     photo.addEventListener('click', function() {
       this.classList.toggle('flipped');
-
-      if (this.classList.contains('flipped') && !this.dataset.viewed) {
-        this.dataset.viewed = 'true';
-        viewedCount++;
-
-        if (viewedCount === totalPhotos && !sequenceFinished) {
-          sequenceFinished = true;
-          setTimeout(() => {
-            swapPhotos();
-          }, 4000);
-        }
-      }
     });
   });
-
-  function swapPhotos() {
-    const newImages = [
-      'photo1_new.jpg',
-      'photo2_new.jpg',
-      'photo3_new.jpg',
-      'photo4_new.jpg',
-      'photo5_new.jpg',
-      'photo6_new.jpg'
-    ];
-
-    document.querySelectorAll('.photo-front img').forEach((img, i) => {
-      if (newImages[i]) {
-        img.src = newImages[i];
-      }
-    });
-
-    document.querySelectorAll('.photo').forEach(photo => {
-      photo.classList.remove('flipped');
-    });
-
-    const instruction = document.getElementById('tapInstruction');
-    if (instruction) {
-      instruction.textContent = 'Сюрприз! А вот еще наши моменты ❤️';
-      instruction.style.animation = 'none';
-    }
-  }
 
   /* ============================================ */
   /* ============ МУЗЫКА И ПОДСКАЗКИ ============ */
@@ -760,6 +745,7 @@
 
     startCountdown();
 
+    // Кнопка Календаря
     document.getElementById('btnCalendar').addEventListener('click', () => {
       if (!choiceDateObj) return;
       const endDateObj = new Date(choiceDateObj.getTime() + 2 * 60 * 60 * 1000);
