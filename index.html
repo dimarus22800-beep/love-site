@@ -19,7 +19,6 @@
     padding: 40px 20px 100px; position: relative; background: #150510;
   }
 
-  /* Фон и слои */
   .bg-photo { position: fixed; inset: 0; z-index: 0; background: url("background.jpg") center/cover no-repeat; filter: blur(1px) brightness(0.55) saturate(1.05); transform: scale(1.05); }
   .bg-overlay { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at 50% 30%, rgba(20,5,15,0.25) 0%, rgba(10,3,8,0.8) 100%), linear-gradient(180deg, rgba(15,3,10,0.55) 0%, rgba(10,2,8,0.85) 100%); pointer-events: none; }
   
@@ -37,27 +36,22 @@
   .love-note { position: absolute; font-family: 'Marck Script', cursive; font-size: calc(clamp(1rem, 3.2vw, 1.7rem) * var(--scale, 1)); color: #ffe0ea; white-space: nowrap; text-shadow: 0 0 10px rgba(255,90,140,0.95), 0 0 26px rgba(255,50,110,0.6), 0 0 50px rgba(255,40,100,0.3); opacity: 0; will-change: opacity, transform; animation: loveFade var(--dur, 8s) ease-in-out forwards; user-select: none; }
   @keyframes loveFade { 0% { opacity: 0; transform: translateY(10px) scale(0.94); } 20% { opacity: 1; transform: translateY(0) scale(1); } 75% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-12px) scale(1.03); } }
 
-  /* Контент */
   .content { position: relative; z-index: 2; text-align: center; width: 100%; max-width: 860px; animation: appear 1.6s ease-out both; }
   @keyframes appear { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
   h1 { font-family: 'Marck Script', cursive; font-weight: 400; font-size: clamp(2.6rem, 11vw, 6.5rem); line-height: 1.15; background: linear-gradient(180deg, #ffffff 0%, #ffd0e0 45%, #ff5c8a 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 22px rgba(255,70,130,0.55)) drop-shadow(0 0 60px rgba(255,70,130,0.35)); animation: pulse 3.5s ease-in-out infinite; margin-bottom: clamp(20px, 4vw, 40px); padding: 0 10px; }
   @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.025); } }
 
-  /* Видео */
   .video-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: #12060d; border: 1px solid rgba(255,140,175,0.35); box-shadow: 0 0 0 6px rgba(255,110,160,0.08), 0 18px 60px rgba(0,0,0,0.7), 0 0 70px rgba(255,60,120,0.3); margin-bottom: clamp(36px, 6vw, 60px); }
   .video-frame video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  /* Стих */
   .poem { font-family: 'Caveat', cursive; font-weight: 500; font-size: clamp(1.25rem, 3.6vw, 1.85rem); line-height: 1.55; color: #ffdde9; text-align: center; white-space: pre-line; letter-spacing: 0.3px; padding: 0 8px; margin: 0 auto clamp(36px, 6vw, 60px); max-width: 640px; text-shadow: 0 0 10px rgba(255,90,140,0.45), 0 0 26px rgba(255,40,100,0.25); }
 
-  /* Сообщение */
   .message { font-family: 'Montserrat', sans-serif; font-weight: 300; font-size: clamp(0.95rem, 2.2vw, 1.08rem); line-height: 1.75; color: #f1e4ea; text-align: justify; text-align-last: center; letter-spacing: 0.2px; max-width: 680px; margin: 0 auto clamp(48px, 8vw, 80px); padding: 28px 26px; border-top: 1px solid rgba(255,140,175,0.35); border-bottom: 1px solid rgba(255,140,175,0.35); background: rgba(20,5,15,0.35); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); border-radius: 4px; position: relative; }
   .message::before, .message::after { content: ""; position: absolute; width: 18px; height: 18px; border-color: rgba(255,140,175,0.85); border-style: solid; }
   .message::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
   .message::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
 
-  /* Галерея */
   .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: clamp(14px, 2.5vw, 22px); max-width: 860px; margin: 0 auto clamp(50px, 8vw, 80px); }
   .photo { position: relative; aspect-ratio: 4 / 5; border-radius: 14px; overflow: hidden; background: #12060d; border: 1px solid rgba(255,140,175,0.35); box-shadow: 0 0 0 4px rgba(255,110,160,0.06), 0 14px 40px rgba(0,0,0,0.6), 0 0 50px rgba(255,60,120,0.22); opacity: 0; transform: translateY(20px); animation: photoAppear 1.2s ease-out forwards; transition: transform 0.5s ease, box-shadow 0.5s ease; }
   .photo:nth-child(1) { animation-delay: 0.1s; } .photo:nth-child(2) { animation-delay: 0.25s; } .photo:nth-child(3) { animation-delay: 0.4s; } .photo:nth-child(4) { animation-delay: 0.55s; } .photo:nth-child(5) { animation-delay: 0.7s; } .photo:nth-child(6) { animation-delay: 0.85s; }
@@ -67,7 +61,6 @@
   .photo:hover img { transform: scale(1.06); }
   .photo::after { content: "❤"; position: absolute; bottom: 10px; right: 12px; font-size: 1.1rem; color: #ff5c8a; text-shadow: 0 0 10px rgba(255,90,140,0.9); opacity: 0.85; pointer-events: none; }
 
-  /* Кнопка музыки */
   .music-btn {
     position: fixed; top: 16px; right: 16px; z-index: 20;
     display: flex; align-items: center; gap: 8px; padding: 10px 18px;
@@ -83,7 +76,6 @@
   .music-btn .music-icon { font-size: 1.1rem; line-height: 1; }
   @keyframes musicPulse { 0%, 100% { box-shadow: 0 0 20px rgba(255, 60, 120, 0.3); } 50% { box-shadow: 0 0 35px rgba(255, 60, 120, 0.6); } }
 
-  /* Блок с вопросом */
   .proposal-section { background: rgba(20, 5, 15, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(255, 140, 175, 0.4); border-radius: 20px; padding: 40px 20px; max-width: 600px; margin: 0 auto; box-shadow: 0 15px 50px rgba(0,0,0,0.6), 0 0 40px rgba(255,60,120,0.2); }
   .proposal-section h2 { font-family: 'Marck Script', cursive; font-size: clamp(2rem, 6vw, 3rem); color: #ffe0ea; margin-bottom: 30px; text-shadow: 0 0 15px rgba(255,90,140,0.8); }
   .buttons-container { display: flex; justify-content: center; gap: 20px; position: relative; min-height: 60px; }
@@ -95,15 +87,29 @@
 
   /* Модалка */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-  .modal-content { background: linear-gradient(180deg, #2a0c1f, #150510); border: 1px solid rgba(255, 140, 175, 0.5); padding: 40px 30px; border-radius: 20px; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 0 60px rgba(255,60,120,0.3); animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .modal-content { background: linear-gradient(180deg, #2a0c1f, #150510); border: 1px solid rgba(255, 140, 175, 0.5); padding: 40px 30px; border-radius: 20px; text-align: center; max-width: 450px; width: 100%; box-shadow: 0 0 60px rgba(255,60,120,0.3); animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   @keyframes modalIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .modal-content h3 { font-family: 'Marck Script', cursive; font-size: 2.2rem; color: #ffdde9; margin-bottom: 20px; }
   .modal-content input[type="datetime-local"] { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid rgba(255, 140, 175, 0.5); background: rgba(0,0,0,0.5); color: #fff; font-family: 'Montserrat', sans-serif; font-size: 1rem; margin-bottom: 20px; outline: none; }
   .modal-content input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
-  .btn-submit { background: linear-gradient(135deg, #ff2e63, #ff5c8a); color: #fff; border: none; padding: 12px 30px; font-size: 1rem; border-radius: 50px; cursor: pointer; font-weight: 500; width: 100%; transition: 0.2s; }
+  .btn-submit { background: linear-gradient(135deg, #ff2e63, #ff5c8a); color: #fff; border: none; padding: 15px 30px; font-size: 1rem; border-radius: 50px; cursor: pointer; font-weight: 500; width: 100%; transition: 0.2s; }
   .btn-submit:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(255,60,120,0.5); }
 
-  /* Мобилка */
+  /* Стили для выбора ресторана */
+  .restaurant-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+  .restaurant-btn {
+    font-family: 'Montserrat', sans-serif; font-size: 1.1rem; font-weight: 500;
+    padding: 16px 20px; background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 140, 175, 0.4); border-radius: 12px;
+    color: #ffdde9; cursor: pointer; transition: all 0.3s ease;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    letter-spacing: 0.5px;
+  }
+  .restaurant-btn:hover {
+    background: rgba(255, 46, 99, 0.15); border-color: #ff5c8a;
+    transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 46, 99, 0.3);
+  }
+
   @media (max-width: 640px) {
     body { padding: 24px 14px 90px; }
     h1 { margin-bottom: 16px; }
@@ -189,7 +195,7 @@
   </main>
 
   <div class="modal-overlay" id="dateModal">
-    <div class="modal-content">
+    <div class="modal-content" id="modalContent">
       <h3>Ура! Когда встретимся?</h3>
       <input type="datetime-local" id="dateInput">
       <button class="btn-submit" id="btnSubmitDate">Отправить Владу</button>
@@ -226,7 +232,7 @@
   });
 
   /* ============================================ */
-  /* ============ TELEGRAM (ЧЕРЕЗ CLOUDFLARE) === */
+  /* ============ TELEGRAM ====================== */
   /* ============================================ */
   const TG_TOKEN = '9262870111:AAHFdrZGedlG0JakCEDFcxFCwXCGUD8ZprU'; 
   const TG_CHAT_ID = '1121644244';
@@ -234,14 +240,8 @@
 
   function sendToTelegram(text) {
     const url = `${PROXY_URL}/bot${TG_TOKEN}/sendMessage?chat_id=${TG_CHAT_ID}&text=${encodeURIComponent(text)}&t=${Date.now()}`;
-    
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        if (data.ok) console.log('✅ Сообщение доставлено');
-        else console.error('❌ Ошибка Telegram:', data);
-      })
-      .catch(err => console.error('❌ Ошибка сети:', err));
+    const img = new Image();
+    img.src = url;
   }
 
   /* ============================================ */
@@ -250,30 +250,24 @@
   const btnNo = document.getElementById('btnNo');
   const btnYes = document.getElementById('btnYes');
   const modal = document.getElementById('dateModal');
+  const modalContent = document.getElementById('modalContent');
   const proposalSection = document.getElementById('proposalSection');
   
   let hasTriedNo = false;
 
   function dodgeButton(e) {
     if (e) e.preventDefault();
-    
-    // Фиксируем кнопку, чтобы она не пропадала
     if (btnNo.style.position !== 'fixed') {
       btnNo.style.position = 'fixed';
       btnNo.style.zIndex = '9999';
     }
-    
-    // Безопасные координаты (чтобы не улетела за край экрана)
     const padding = 20;
     const btnWidth = btnNo.offsetWidth || 100;
     const btnHeight = btnNo.offsetHeight || 50;
-    
     const maxX = window.innerWidth - btnWidth - padding;
     const maxY = window.innerHeight - btnHeight - padding;
-    
     const x = Math.max(padding, Math.random() * maxX);
     const y = Math.max(padding, Math.random() * maxY);
-    
     btnNo.style.left = `${x}px`;
     btnNo.style.top = `${y}px`;
 
@@ -292,6 +286,9 @@
     sendToTelegram("❤️ ОНА НАЖАЛА 'ДА'! Ждет окно выбора даты.");
   });
 
+  /* ============================================ */
+  /* ============ ВЫБОР ДАТЫ И РЕСТОРАНА ======== */
+  /* ============================================ */
   document.getElementById('btnSubmitDate').addEventListener('click', () => {
     const dateVal = document.getElementById('dateInput').value;
     if (!dateVal) {
@@ -299,21 +296,39 @@
       return;
     }
     
-    // Фикс для телефонов: убираем T, чтобы дата выглядела красиво
     const formattedDate = dateVal.replace('T', ' '); 
-    
     sendToTelegram(`🎉 УРА! ОНА ВЫБРАЛА ДАТУ СВИДАНИЯ:\n📅 ${formattedDate}`);
     
-    modal.innerHTML = `
-      <div class="modal-content">
-        <h3>Договорились!</h3>
-        <p style="color: #ffdde9; font-size: 1.1rem;">Влад уже получил уведомление и скоро свяжется с тобой 😉</p>
+    // Меняем содержимое модалки на выбор ресторана
+    modalContent.innerHTML = `
+      <h3>Отличный выбор!<br>А куда пойдем?</h3>
+      <div class="restaurant-list">
+        <button class="restaurant-btn" data-rest="Кубрик">🍔 Кубрик</button>
+        <button class="restaurant-btn" data-rest="Касса">🍷 Касса</button>
+        <button class="restaurant-btn" data-rest="Краснодар Фуд Маркет">🥙 Краснодар Фуд Маркет</button>
       </div>
     `;
   });
 
+  // Ловим клик по любой кнопке ресторана
+  modalContent.addEventListener('click', (e) => {
+    const target = e.target.closest('.restaurant-btn');
+    if (!target) return;
+
+    const restaurantName = target.getAttribute('data-rest');
+    
+    // Отправляем в ТГ
+    sendToTelegram(`🍽 Софья выбрала ресторан: ${restaurantName}`);
+    
+    // Показываем финальный экран
+    modalContent.innerHTML = `
+      <h3>Договорились!</h3>
+      <p style="color: #ffdde9; font-size: 1.1rem; line-height: 1.6;">Влад уже получил уведомление.<br>Он скоро свяжется с тобой, чтобы обсудить детали 😉</p>
+    `;
+  });
+
   /* ============================================ */
-  /* ============ СЕРДЕЧКИ ====================== */
+  /* ============ СЕРДЕЧКИ И ЭФФЕКТЫ ============ */
   /* ============================================ */
   const container = document.getElementById('hearts');
   const COLORS = ['#ff2e63', '#ff4d6d', '#ff758f', '#ff8fa3', '#ffa5b8', '#ffc2d1', '#ffd6e0', '#e63980'];
@@ -329,9 +344,6 @@
   for (let i = 0; i < 25; i++) setTimeout(createHeart, i * 120);
   setInterval(createHeart, 300);
 
-  /* ============================================ */
-  /* ============ ВСПЛЫВАЮЩИЕ НАДПИСИ =========== */
-  /* ============================================ */
   const loveLayer = document.getElementById('love-notes');
   function pickPosition() { for (let i = 0; i < 12; i++) { const x = 4 + Math.random() * 88; const y = 8 + Math.random() * 80; if (Math.abs(x - 50) < 26 && Math.abs(y - 50) < 30) continue; return [x, y]; } return [4 + Math.random() * 88, 8 + Math.random() * 80]; }
   function spawnLoveNote() {
@@ -342,9 +354,6 @@
   }
   setTimeout(spawnLoveNote, 900); setTimeout(spawnLoveNote, 2200); setInterval(spawnLoveNote, 1900);
 
-  /* ============================================ */
-  /* ============ ДОЖДЬ И МОЛНИЯ ================ */
-  /* ============================================ */
   const canvas = document.getElementById('rain-canvas'); const ctx = canvas.getContext('2d'); const lightningEl = document.getElementById('lightning'); const poemEl = document.getElementById('poem');
   let rainActive = false; let drops = []; let lightningTimeout = null;
   function resizeCanvas() { const dpr = window.devicePixelRatio || 1; canvas.width = window.innerWidth * dpr; canvas.height = window.innerHeight * dpr; canvas.style.width = window.innerWidth + 'px'; canvas.style.height = window.innerHeight + 'px'; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); createDrops(); }
