@@ -83,27 +83,36 @@
     bottom: 80px;
     right: 16px;
     z-index: 100;
-    display: none; /* Скрыто по умолчанию */
+    display: flex; /* Теперь видно сразу */
     align-items: center;
     gap: 10px;
-    background: rgba(255, 46, 99, 0.9);
+    background: rgba(255, 46, 99, 0.95);
     color: #fff;
     padding: 10px 18px;
     border-radius: 20px;
     font-family: 'Montserrat', sans-serif;
     font-weight: 500;
-    font-size: 1rem;
+    font-size: 0.95rem;
     box-shadow: 0 5px 20px rgba(255, 46, 99, 0.5);
-    animation: hintPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    animation: floatHint 2s infinite ease-in-out;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    cursor: pointer;
   }
-  .music-hint.show { display: flex; }
+  .music-hint.hidden { opacity: 0; visibility: hidden; }
   .music-hint .arrow {
     font-size: 1.5rem;
     display: inline-block;
-    animation: bounceArrow 1s infinite;
+    animation: blinkArrow 0.8s infinite alternate;
   }
-  @keyframes hintPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  @keyframes bounceArrow { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(5px, 5px); } }
+  
+  @keyframes blinkArrow { 
+    0% { opacity: 1; transform: translate(0, 0); } 
+    100% { opacity: 0.2; transform: translate(8px, 8px); } 
+  }
+  @keyframes floatHint {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
 
   /* Модалка */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
@@ -141,16 +150,14 @@
     .buttons-container { flex-direction: column; gap: 15px; }
     .btn-choice { width: 100%; }
     
-    /* Кнопка музыки на мобилке */
     .music-btn { top: auto; bottom: 16px; right: 16px; padding: 0; width: 50px; height: 50px; border-radius: 50%; justify-content: center; animation: none; }
     .music-btn .music-label { display: none; }
     .music-btn .music-icon { font-size: 1.35rem; }
 
-    /* Подсказка на мобилке */
     .music-hint {
       bottom: 80px;
       right: 16px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       padding: 8px 14px;
     }
   }
@@ -167,9 +174,9 @@
     <span class="music-label">Включить музыку</span>
   </button>
 
-  <!-- ПОДСКАЗКА К МУЗЫКЕ -->
+  <!-- ПОДСКАЗКА К МУЗЫКЕ (Видна сразу) -->
   <div id="musicHint" class="music-hint">
-    <span>Включи звук!</span>
+    <span>Включи звук после просмотра видео</span>
     <span class="arrow">↘️</span>
   </div>
 
@@ -244,27 +251,20 @@
   const musicIcon = musicBtn.querySelector('.music-icon');
   const musicLabel = musicBtn.querySelector('.music-label');
   const musicHint = document.getElementById('musicHint');
-  const myVideo = document.getElementById('myVideo');
 
   audio.volume = 0.35;
 
-  // Показываем подсказку, когда видео заканчивается
-  myVideo.addEventListener('ended', () => {
-    // Показываем подсказку только если музыка сейчас на паузе
-    if (audio.paused) {
-      musicHint.classList.add('show');
-    }
-  });
-
-  musicBtn.addEventListener('click', () => {
-    // Прячем подсказку при клике на кнопку
-    musicHint.classList.remove('show');
-
+  // Функция включения/выключения музыки
+  function toggleMusic() {
     if (audio.paused) {
       audio.play().then(() => {
         musicBtn.classList.add('playing');
         musicIcon.textContent = '🔊';
         musicLabel.textContent = 'Выключить музыку';
+        
+        // СКРЫВАЕМ ПОДСКАЗКУ, как только музыка включилась
+        musicHint.classList.add('hidden');
+        
       }).catch(() => {
         musicLabel.textContent = 'Добавь music.mp3';
         setTimeout(() => { musicLabel.textContent = 'Включить музыку'; }, 2500);
@@ -275,7 +275,13 @@
       musicIcon.textContent = '🔇';
       musicLabel.textContent = 'Включить музыку';
     }
-  });
+  }
+
+  // Клик по кнопке музыки
+  musicBtn.addEventListener('click', toggleMusic);
+  
+  // Клик по самой подсказке (чтобы было удобнее нажимать)
+  musicHint.addEventListener('click', toggleMusic);
 
   /* ============================================ */
   /* ============ TELEGRAM ====================== */
