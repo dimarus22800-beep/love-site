@@ -378,11 +378,6 @@
     <span class="music-label">Включить музыку</span>
   </button>
 
-  <div id="musicHint" class="music-hint">
-    <span>Включи звук после просмотра видео</span>
-    <span class="arrow">↘️</span>
-  </div>
-
   <div class="bg-photo" aria-hidden="true"></div>
   <div class="bg-overlay" aria-hidden="true"></div>
 
@@ -396,7 +391,7 @@
     <h1>Софья и Влад</h1>
 
     <div class="video-frame">
-      <video id="myVideo" controls playsinline loop preload="metadata" poster="poster.jpg">
+      <video id="myVideo" controls playsinline preload="metadata" poster="poster.jpg">
         <source src="video.mp4" type="video/mp4">
       </video>
       <div id="videoHint" class="video-hint">
@@ -566,43 +561,91 @@
   });
 
   /* ============================================ */
-  /* ============ МУЗЫКА И ПОДСКАЗКИ ============ */
+  /* ============ МУЗЫКА: АВТОЗАПУСК ============ */
   /* ============================================ */
   const audio = document.getElementById('bgMusic');
   const musicBtn = document.getElementById('musicBtn');
   const musicIcon = musicBtn.querySelector('.music-icon');
   const musicLabel = musicBtn.querySelector('.music-label');
-  const musicHint = document.getElementById('musicHint');
   const videoHint = document.getElementById('videoHint');
   const myVideo = document.getElementById('myVideo');
 
   audio.volume = 0.35;
 
-  myVideo.addEventListener('play', () => {
-    videoHint.classList.add('hidden');
-  });
+  let userMuted = false;      // человек сам выключил музыку кнопкой
+  let videoIsPlaying = false; // сейчас смотрит видео
+
+  function setMusicUI(playing) {
+    musicBtn.classList.toggle('playing', playing);
+    musicIcon.textContent = playing ? '🔊' : '🔇';
+    musicLabel.textContent = playing ? 'Выключить музыку' : 'Включить музыку';
+  }
+
+  function startMusic() {
+    if (userMuted || videoIsPlaying || !audio.paused) return;
+    const p = audio.play();
+    if (!p || !p.then) return;
+    p.then(() => setMusicUI(true)).catch(() => armFirstGesture());
+  }
+
+  /* Браузеры не разрешают включать звук до первого действия человека.
+     Поэтому пробуем сразу, а если запретили — включаем на первое
+     касание/клик/клавишу где угодно на странице. */
+  let gestureArmed = false;   // уже ждём первое действие
+
+  function armFirstGesture() {
+    if (gestureArmed) return;
+    gestureArmed = true;
+    const onFirst = (e) => {
+      gestureArmed = false;
+      document.removeEventListener('pointerdown', onFirst, true);
+      document.removeEventListener('keydown', onFirst, true);
+      document.removeEventListener('touchstart', onFirst, true);
+      // если первым делом нажали на видео — музыку не поднимаем
+      const el = e.target;
+      if (el && el.closest && el.closest('.video-frame')) return;
+      startMusic();
+    };
+    document.addEventListener('pointerdown', onFirst, true);
+    document.addEventListener('keydown', onFirst, true);
+    document.addEventListener('touchstart', onFirst, true);
+  }
 
   function toggleMusic() {
     if (audio.paused) {
-      audio.play().then(() => {
-        musicBtn.classList.add('playing');
-        musicIcon.textContent = '🔊';
-        musicLabel.textContent = 'Выключить музыку';
-        musicHint.classList.add('hidden');
-      }).catch(() => {
-        musicLabel.textContent = 'Музыка не загрузилась';
-        setTimeout(() => { musicLabel.textContent = 'Включить музыку'; }, 2500);
-      });
+      userMuted = false;
+      const p = audio.play();
+      if (p && p.then) p.then(() => setMusicUI(true)).catch(() => {});
     } else {
+      userMuted = true;
       audio.pause();
-      musicBtn.classList.remove('playing');
-      musicIcon.textContent = '🔇';
-      musicLabel.textContent = 'Включить музыку';
+      setMusicUI(false);
     }
   }
 
   musicBtn.addEventListener('click', toggleMusic);
-  musicHint.addEventListener('click', toggleMusic);
+
+  /* Видео смотрим без музыки: включается видео — музыка уходит в паузу. */
+  myVideo.addEventListener('play', () => {
+    videoIsPlaying = true;
+    videoHint.classList.add('hidden');
+    if (!audio.paused) audio.pause();
+    setMusicUI(false);
+  });
+
+  myVideo.addEventListener('pause', () => {
+    videoIsPlaying = false;
+  });
+
+  /* Видео закончилось — музыка возвращается (если её не выключили кнопкой). */
+  myVideo.addEventListener('ended', () => {
+    videoIsPlaying = false;
+    if (!userMuted) startMusic();
+  });
+
+  /* Пробуем включить сразу, не дожидаясь действий. */
+  startMusic();
+  window.addEventListener('load', () => { if (audio.paused) startMusic(); });
 
   /* ============================================ */
   /* ============ КНОПКИ ДА / НЕТ =============== */
