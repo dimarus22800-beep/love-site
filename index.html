@@ -369,7 +369,7 @@
 </head>
 <body>
 
-  <audio id="bgMusic" loop preload="none">
+  <audio id="bgMusic" loop preload="auto">
     <source src="music.mp3" type="audio/mpeg">
   </audio>
 
@@ -581,34 +581,47 @@
     musicLabel.textContent = playing ? 'Выключить музыку' : 'Включить музыку';
   }
 
+  /* Браузеры не разрешают включать звук до первого действия человека.
+     Поэтому: пробуем сразу, а если запретили — пробуем на КАЖДОЕ действие
+     (тап, клик, клавиша, прокрутка), пока музыка не заиграет.
+     Раньше обработчик был одноразовым и «сгорал» на первом же тапе,
+     если тот попадал по видео — а на телефоне видео занимает весь экран. */
+
+  let starting = false;      // уже пытаемся включить
+  let gesturesArmed = false; // ждём действия человека
+
   function startMusic() {
-    if (userMuted || videoIsPlaying || !audio.paused) return;
+    if (starting || userMuted || videoIsPlaying || !audio.paused) return;
+    starting = true;
     const p = audio.play();
-    if (!p || !p.then) return;
-    p.then(() => setMusicUI(true)).catch(() => armFirstGesture());
+    if (!p || !p.then) { starting = false; return; }
+    p.then(() => { starting = false; setMusicUI(true); disarmGestures(); })
+     .catch(() => { starting = false; armGestures(); });
   }
 
-  /* Браузеры не разрешают включать звук до первого действия человека.
-     Поэтому пробуем сразу, а если запретили — включаем на первое
-     касание/клик/клавишу где угодно на странице. */
-  let gestureArmed = false;   // уже ждём первое действие
+  function onUserAction() {
+    // Любое действие человека пробует включить музыку — включая свайп,
+    // начатый поверх видео (на телефоне оно занимает весь первый экран).
+    // Если при этом запустится видео, оно само поставит музыку на паузу.
+    startMusic();
+  }
 
-  function armFirstGesture() {
-    if (gestureArmed) return;
-    gestureArmed = true;
-    const onFirst = (e) => {
-      gestureArmed = false;
-      document.removeEventListener('pointerdown', onFirst, true);
-      document.removeEventListener('keydown', onFirst, true);
-      document.removeEventListener('touchstart', onFirst, true);
-      // если первым делом нажали на видео — музыку не поднимаем
-      const el = e.target;
-      if (el && el.closest && el.closest('.video-frame')) return;
-      startMusic();
-    };
-    document.addEventListener('pointerdown', onFirst, true);
-    document.addEventListener('keydown', onFirst, true);
-    document.addEventListener('touchstart', onFirst, true);
+  function armGestures() {
+    if (gesturesArmed) return;
+    gesturesArmed = true;
+    document.addEventListener('pointerdown', onUserAction, true);
+    document.addEventListener('keydown', onUserAction, true);
+    document.addEventListener('touchstart', onUserAction, { capture: true, passive: true });
+    window.addEventListener('scroll', onUserAction, { passive: true });
+  }
+
+  function disarmGestures() {
+    if (!gesturesArmed) return;
+    gesturesArmed = false;
+    document.removeEventListener('pointerdown', onUserAction, true);
+    document.removeEventListener('keydown', onUserAction, true);
+    document.removeEventListener('touchstart', onUserAction, true);
+    window.removeEventListener('scroll', onUserAction);
   }
 
   function toggleMusic() {
@@ -634,6 +647,11 @@
   });
 
   myVideo.addEventListener('pause', () => {
+    videoIsPlaying = false;
+  });
+
+  /* Если видео не загрузилось или упало — не держим музыку заблокированной. */
+  myVideo.addEventListener('error', () => {
     videoIsPlaying = false;
   });
 
